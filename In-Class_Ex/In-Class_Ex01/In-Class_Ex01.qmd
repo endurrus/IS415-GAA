@@ -1,0 +1,10 @@
+---
+title: "In-Class_Ex01"
+author: "Hei Yee Kai"
+date: "August 18, 2024"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  freeze: true
+---
