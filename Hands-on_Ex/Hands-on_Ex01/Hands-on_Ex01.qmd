@@ -1,16 +1,23 @@
 ---
-title: "Hands-on Exercise 1"
+title: "Hands-On Exercise 1"
+author: "Hei Yee Kai"
+date: "August 16, 2024"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  freeze: true
 ---
 
 ```{r}
 pacman::p_load(sf, tidyverse)
-mpsz = st_read(dsn = "C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data", layer = "MP14_SUBZONE_WEB_PL")
+mpsz = st_read(dsn = "C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data", layer = "MP14_SUBZONE_WEB_PL")
 
-cyclingpath = st_read(dsn = "C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data", layer = "CyclingPathGazette")
+cyclingpath = st_read(dsn = "C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data", layer = "CyclingPathGazette")
 
-preschool = st_read("C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data/PreSchoolsLocation.kml")
+preschool = st_read("C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data/PreSchoolsLocation.kml")
 
-listings <- read_csv("C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data/listings.csv") 
+listings <- read_csv("C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data/listings.csv") 
 
 glimpse(listings)
 
@@ -86,5 +93,4 @@ ggplot(data=mpsz3414,
 ```
 
 ```{r}
-
 ```

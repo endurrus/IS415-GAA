@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Hei Yee Kai">
+<meta name="dcterms.date" content="2024-08-16">
 
-<title>IS415-GAA - Hands-on Exercise 1</title>
+<title>IS415-GAA - Hands-On Exercise 1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -124,12 +126,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Hands-on Exercise</span>
+ <span class="menu-text">Hands-On Exercise</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-hands-on-exercise">    
         <li>
-    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html">
- <span class="dropdown-text">Hands-on Exercise 1</span></a>
+    <a class="dropdown-item" href="../../Hands-On_Ex/Hands-On_Ex01/Hands-On_Ex01.html">
+ <span class="dropdown-text">Hands-On Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-On_Ex/Hands-On_Ex02/Hands-On_Ex02.html">
+ <span class="dropdown-text">Hands-On Exercise 2</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">In-Class Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../In-Class_Ex/In-Class_Ex01/In-Class_Ex01.html">
+ <span class="dropdown-text">In-Class Exercise 1</span></a>
   </li>  
     </ul>
   </li>
@@ -162,15 +179,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands-on Exercise 1</h1>
+<h1 class="title">Hands-On Exercise 1</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Hei Yee Kai </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 16, 2024</p>
+    </div>
+  </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">August 24, 2024</p>
+    </div>
+  </div>
     
   </div>
   
@@ -181,30 +216,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data"</span>, <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data"</span>, <span class="at">layer =</span> <span class="st">"MP14_SUBZONE_WEB_PL"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
-  `C:\endurrus\IS415-GAA\Hands-on_Ex\Hands-on_Ex01\data' using driver `ESRI Shapefile'
+  `C:\endurrus\IS415-GAA\Hands-On_Ex\Hands-On_Ex01\data' using driver `ESRI Shapefile'
 Simple feature collection with 323 features and 15 fields
 Geometry type: MULTIPOLYGON
 Dimension:     XY
 Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
 Projected CRS: SVY21</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data"</span>, <span class="at">layer =</span> <span class="st">"CyclingPathGazette"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">=</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data"</span>, <span class="at">layer =</span> <span class="st">"CyclingPathGazette"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `CyclingPathGazette' from data source 
-  `C:\endurrus\IS415-GAA\Hands-on_Ex\Hands-on_Ex01\data' using driver `ESRI Shapefile'
+  `C:\endurrus\IS415-GAA\Hands-On_Ex\Hands-On_Ex01\data' using driver `ESRI Shapefile'
 Simple feature collection with 3138 features and 2 fields
 Geometry type: MULTILINESTRING
 Dimension:     XY
 Bounding box:  xmin: 11854.32 ymin: 28347.98 xmax: 42644.17 ymax: 48948.15
 Projected CRS: SVY21</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data/PreSchoolsLocation.kml"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">=</span> <span class="fu">st_read</span>(<span class="st">"C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data/PreSchoolsLocation.kml"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `PRESCHOOLS_LOCATION' from data source 
-  `C:\endurrus\IS415-GAA\Hands-on_Ex\Hands-on_Ex01\data\PreSchoolsLocation.kml' 
+  `C:\endurrus\IS415-GAA\Hands-On_Ex\Hands-On_Ex01\data\PreSchoolsLocation.kml' 
   using driver `KML'
 Simple feature collection with 2290 features and 2 fields
 Geometry type: POINT
@@ -213,7 +248,7 @@ Bounding box:  xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134
 z_range:       zmin: 0 zmax: 0
 Geodetic CRS:  WGS 84</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>listings <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"C:/endurrus/IS415-GAA/Hands-on_Ex/Hands-on_Ex01/data/listings.csv"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>listings <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"C:/endurrus/IS415-GAA/Hands-On_Ex/Hands-On_Ex01/data/listings.csv"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Rows: 3540 Columns: 75
 ── Column specification ────────────────────────────────────────────────────────
@@ -461,7 +496,7 @@ all</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -469,7 +504,7 @@ all</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -477,7 +512,7 @@ all</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -614,7 +649,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-4.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-4.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -630,7 +665,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-5.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-5.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -651,7 +686,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-1-6.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Hands-On_Ex01_files/figure-html/unnamed-chunk-1-6.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
