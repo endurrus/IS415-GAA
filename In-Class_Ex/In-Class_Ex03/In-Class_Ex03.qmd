@@ -9,6 +9,8 @@ execute:
   freeze: true
 ---
 
+Edit - Minor Spelling Issues
+
 ## Install/Launch R
 
 ```{r}

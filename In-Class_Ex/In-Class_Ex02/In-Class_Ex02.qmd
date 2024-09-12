@@ -9,6 +9,8 @@ execute:
   freeze: true
 ---
 
+Edit - Minor Spelling Issues
+
 ```{r}
 pacman::p_load(sf, tidyverse, tmap)
 
