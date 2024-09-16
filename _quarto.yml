@@ -13,6 +13,8 @@ website:
           href: "Hands-On_Ex/Hands-On_Ex02/Hands-On_Ex02.html"
         - text: "Hands-On Exercise 3"
           href: "Hands-On_Ex/Hands-On_Ex03/Hands-On_Ex03.html"
+        - text: "Hands-On Exercise 5"
+          href: "Hands-On_Ex/Hands-On_Ex05/Hands-On_Ex05.html"
     - text: "In-Class Exercise"
       menu:
         - text: "In-Class Exercise 1"
@@ -23,6 +25,8 @@ website:
           href: "In-Class_Ex/In-Class_Ex03/In-Class_Ex03.html"
         - text: "In-Class Exercise 4"
           href: "In-Class_Ex/In-Class_Ex04/In-Class_Ex04.html"
+        - text: "In-Class Exercise 5"
+          href: "In-Class_Ex/In-Class_Ex05/In-Class_Ex05.html"
           
           
     right:
