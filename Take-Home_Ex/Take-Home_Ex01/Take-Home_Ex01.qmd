@@ -1,19 +1,19 @@
 ---
 title: "Take-Home_Ex01"
 author: "Hei Yee Kai"
-date: "September 20, 2024"
+date: "September 22, 2024"
 date-modified: "last-modified"
 execute: 
-  eval: true
+  eval: false
   echo: true
   freeze: true
 ---
 
-## **1.0 Introduction**
+## **Introduction**
 
 Armed conflicts continue to wreak havoc worldwide, disrupting the lives of millions annually. After a relative decline in the 1990s and early 2000s, conflicts have surged since 2012, triggered by events such as the 2011 Arab uprisings that sparked wars in Libya, Syria, and Yemen. The instability in Libya further contributed to prolonged unrest in the Sahel region. This period of escalating violence has been marked by numerous high-profile conflicts: the 2020 war between Azerbaijan and Armenia over Nagorno-Karabakh, the brutal fighting in Ethiopia’s Tigray region, Myanmar's descent into conflict following a military coup in 2021, and Russia’s invasion of Ukraine in 2022. In 2023, violence intensified in Sudan and Gaza, adding to the mounting toll of human suffering. Today, more people are experiencing death, displacement, and a critical need for humanitarian aid than at any time in recent decades.
 
-## **2.0 Importing Packages**
+## **Importing Packages**
 
 Before we start the exercise, we will need to import necessary R packages first. We will use the following packages:
 
@@ -36,17 +36,17 @@ pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat, lubridate, sp
 
 ```
 
-## **3.0 Importing Dataset into R environment**
+## **Importing Dataset into R environment**
 
-### **3.1 Datasets**
+### **Datasets**
 
 1.  For the purpose of this assignment, **armed conflict data** of Myanmar between January 2021 - June 2024 from [Armed Conflict Location & Event Data (ACLED)](https://acleddata.com/). Our analysis concentrates on four primary event categories: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
 
 2.  We will also use geospatial data on the Myanmar National Border in ESRI Shapefile format. [(Myanmar National Boundary MIMU v9.4)](http://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm0_250k_mimu_1)
 
-### **3.2 Importing the Datasets**
+### **Importing the Datasets**
 
-#### 3.2.1 Myanmar Armed Conflict Dataset
+#### Myanmar Armed Conflict Dataset
 
 The dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the csv data and returns an **`sf`** object that can be used for further analysis.
 
@@ -68,7 +68,7 @@ acled_sf <- acled_sf %>%
   mutate(quarter = quarter(event_date))
 ```
 
-#### 3.2.2 Myanmar Administrative Boundary Data
+#### Myanmar Administrative Boundary Data
 
 The code chunk below uses [`st_read()`](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package to import Myanmar shapefile into R. The imported shapefile will be **simple features** Object of **sf**.
 
@@ -81,7 +81,7 @@ myanmar_sf <- st_read(dsn = "data",
   st_transform(crs = 32647)
 ```
 
-### **3.3 Mapping the geospatial data sets**
+### **Mapping geospatial data sets**
 
 It is useful for us to plot a map to show spatial patters.
 
@@ -95,11 +95,11 @@ The code below plots the armed conflict data in Myanmar.
 acled_sf %>%   tm_shape()+tm_dots()
 ```
 
-## **4.0 Geospatial Data Wrangling**
+## **Geospatial Data Wrangling**
 
-### **4.1 Separating the data by year and quarter**
+### **Separating data by the year and quarters**
 
-The code chunk below separates the data provided into year and quarter for easier plotting.
+The code chunk below separates the data provided into years and quarters for easier plotting.
 
 ```{r}
 # 2021
@@ -165,9 +165,9 @@ acled_2024.Q2_sf <- acled_sf %>%
   filter(quarter == '2')
 ```
 
-### **4.1 Converting sf data frames to sp’s Spatial\* class**
+### **Converting sf data frames to sp’s Spatial\* class**
 
-The code chunk below uses [*as_Spatial()*](https://r4gdsa.netlify.app/chap04.html?q=KDE%20layers) of **sf** package to convert the geospatial data from simple feature data frame to sp’s Spatial\* class.
+The code chunk below uses [*as_Spatial()*](https://r4gdsa.netlify.app/chap04.html?q=KDE%20layers) of **sf** package to convert the geospatial data from sf data frame to sp’s Spatial\* class.
 
 ```{r}
 acled <- as_Spatial(acled_sf)
@@ -192,7 +192,7 @@ acled_2024.Q1 <- as_Spatial(acled_2024.Q1_sf)
 acled_2024.Q2 <- as_Spatial(acled_2024.Q2_sf)
 ```
 
-### **4.2 Converting the simple features to spatstat’s ppp (planar point pattern) object**
+### **Converting simple features to spatstat’s ppp (planar point pattern) object**
 
 **spatstat** requires the analytical data in ***ppp*** object form. Hence we will convert `sf` objects to `ppp` objects using [`as.ppp()`](https://rdrr.io/pkg/spatstat.geom/man/as.ppp.html) function by providing the point coordinates and the observation window.
 
@@ -222,13 +222,13 @@ acled_2024.Q2_ppp <- as.ppp(st_coordinates(acled_2024.Q2_sf), st_bbox(acled_2024
 plot(acled_2021.Q1_ppp)
 ```
 
-Next, we will take a quick look at the summary statistics of the newly created ppp object.
+Heres the summary statistics of the newly created ppp object.
 
 ```{r}
 summary(acled_2021.Q1_ppp)
 ```
 
-### **4.3 Handling duplicated points**
+### **Handling duplicated points**
 
 It is previously mentioned in `summary(acled_ppp)` that there are duplicated points in the patterns. We can double confirm the duplication in a ***ppp*** object by using the code chunk below.
 
@@ -313,13 +313,13 @@ acled_2024.Q2_ppp_jit <- rjitter(acled_2024.Q2_ppp,
                              drop=TRUE)
 ```
 
-Next, we will check if there is still any duplicate points in our dataset.
+We will check if there is still any duplicate points in our dataset.
 
 ```{r}
 any(duplicated(acled_2021.Q1_ppp_jit))
 ```
 
-### **4.4 Creating *owin* object**
+### **Creating *owin* object**
 
 Since we have imported the Myanmar boundary, we will now convert the `myanmar_sf` object into an `owin` object.
 
@@ -330,7 +330,7 @@ plot(myanmar_owin)
 summary(myanmar_owin)
 ```
 
-### **4.5 Creating point events objects in owin Object**
+### **Creating point events objects in owin Object**
 
 In this last step of geospatial data wrangling, we will extract armed conflict events that are located within Myanmar.
 
@@ -366,11 +366,11 @@ summary(acledmyanmar_2021.Q1_ppp)
 plot(acledmyanmar_2021.Q1_ppp)
 ```
 
-## **5.0 First-order Spatial Point Patterns Analysis**
+## **First-order Spatial Point Patterns Analysis**
 
 After data wrangling is complete, we will perform first-order spatial point pattern analysis using functions from the `spatstat` package.
 
-### **5.1 Quarterly KDE layers**
+### **Quarterly KDE layers**
 
 ```{r}
 # overall
@@ -478,11 +478,11 @@ plot(kde_acledmyanmar_2024.Q1.bw)
 plot(kde_acledmyanmar_2024.Q2.bw)
 ```
 
-# **6.0 Second-order Spatial Point Patterns Analysis**
+# **Second-order Spatial Point Patterns Analysis**
 
-## **6.1 Data Wrangling for Second-order analysis**
+## **Data Wrangling for Second-order analysis**
 
-#### 6.1.1 Extracting study areas
+#### Extracting study areas
 
 The code chunk below targets the areas with the highest amount of activity.
 
@@ -501,7 +501,7 @@ MDL <- myanmar_sf %>%
   filter(ST == "Mandalay")
 ```
 
-#### 6.1.2 Combining event points and the study area
+#### Combining event points and the study area
 
 By using the code chunk below, we are able to extract events that is within specific regions to do our analysis later on.
 
@@ -538,9 +538,9 @@ plot(MW_ppp.km, main="Magway")
 plot(MDL_ppp.km, main="Mandalay")
 ```
 
-## **6.2 Analysing Spatial Point Process Using G-Function**
+## **Analysing Spatial Point Process Using G-Function**
 
-#### 6.2.1 Kachin area
+#### Kachin area
 
 ```{r}
 G_KC = Gest(KC_ppp, correction = "border") 
@@ -563,7 +563,7 @@ G_KC.csr <- envelope(KC_ppp, Gest, nsim = 999)
 plot(G_KC.csr)
 ```
 
-#### 6.2.2 Magway area
+#### Magway area
 
 ```{r}
 G_MW = Gest(MW_ppp, correction = "border") 
@@ -587,7 +587,7 @@ G_MW.csr <- envelope(MW_ppp, Gest, nsim = 999)
 plot(G_MW.csr)
 ```
 
-#### 6.2.3 Mandalay area
+#### Mandalay area
 
 ```{r}
 G_MDL = Gest(MDL_ppp, correction = "border") 
@@ -611,7 +611,7 @@ G_MDL.csr <- envelope(MDL_ppp, Gest, nsim = 999)
 plot(G_MDL.csr)
 ```
 
-#### 6.2.4 Sagaing area
+#### Sagaing area
 
 The code chunk below is used to compute G-function using *Gest()* of **spatat** package.
 
@@ -637,9 +637,292 @@ G_SGI.csr <- envelope(SGI_ppp, Gest, nsim = 999)
 plot(G_SGI.csr)
 ```
 
-# **7.0 Computing Spatio-temporal KDE by quarter**
+# **Computing Spatio-temporal KDE**
+
+```{r}
+acled_sf_2021_mutated <- acled_sf %>% 
+  filter(year == 2021) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2022_mutated <- acled_sf %>% 
+  filter(year == 2022) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2023_mutated <- acled_sf %>% 
+  filter(year == 2023) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2024_mutated <- acled_sf %>% 
+  filter(year == 2024) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_quarter_2021 <- acled_sf_2021_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2022 <- acled_sf_2022_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2023 <- acled_sf_2023_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2024 <- acled_sf_2024_mutated %>% 
+  dplyr::select(Quarter_label)
+```
+
+### **Creating ppp object**
+
+```{r}
+acled_quarter_2021_ppp <- as.ppp(acled_quarter_2021)
+acled_quarter_2022_ppp <- as.ppp(acled_quarter_2022)
+acled_quarter_2023_ppp <- as.ppp(acled_quarter_2023)
+acled_quarter_2024_ppp <- as.ppp(acled_quarter_2024)
+
+summary(acled_quarter_2021_ppp)
+summary(acled_quarter_2022_ppp)
+summary(acled_quarter_2023_ppp)
+summary(acled_quarter_2024_ppp)
+
+acled_quarter_2021_ppp <- rjitter(acled_quarter_2021_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2022_ppp <- rjitter(acled_quarter_2022_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2023_ppp <- rjitter(acled_quarter_2023_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2024_ppp <- rjitter(acled_quarter_2024_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+
+any(duplicated(acled_quarter_2021_ppp))
+```
+
+### **Including owin object**
+
+```{r}
+acled_quarter_2021_owin <- acled_quarter_2021_ppp[myanmar_owin]
+acled_quarter_2022_owin <- acled_quarter_2022_ppp[myanmar_owin]
+acled_quarter_2023_owin <- acled_quarter_2023_ppp[myanmar_owin]
+acled_quarter_2024_owin <- acled_quarter_2024_ppp[myanmar_owin]
+
+plot(acled_quarter_2021_owin)
+```
+
+## **Computing spatio-temporal KDE by quarters**
+
+```{r}
+acledmyanmar_2021_kde <- spattemp.density(acled_quarter_2021_owin)
+acledmyanmar_2022_kde <- spattemp.density(acled_quarter_2022_owin)
+acledmyanmar_2023_kde <- spattemp.density(acled_quarter_2023_owin)
+acledmyanmar_2024_kde <- spattemp.density(acled_quarter_2024_owin)
+```
+
+## **Computing spatio-temporal KDE by quarters**
 
 `spattemp.density()` of sparr package is used to compute the STKDE.
 
 ```{r}
+acledmyanmar_2021_kde <- spattemp.density(acled_quarter_2021_owin)
+acledmyanmar_2022_kde <- spattemp.density(acled_quarter_2022_owin)
+acledmyanmar_2023_kde <- spattemp.density(acled_quarter_2023_owin)
+acledmyanmar_2024_kde <- spattemp.density(acled_quarter_2024_owin)
 ```
+
+### **Plotting the spatio-temporal KDE object**
+
+```{r}
+quarters <- c(1,2,3,4)
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2021_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2021 Q",i))
+}
+
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2022_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2022 Q",i))
+}
+
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2023_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2023 Q",i))
+}
+
+quarters <- c(1,2)
+par(mfcol=c(1,2))
+for(i in quarters){ 
+  plot(acledmyanmar_2024_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2024 Q",i))
+}
+```
+
+# **Displaying layers on openstreetmap**
+
+## **Displaying KDE layers**
+
+### **Displaying 2021**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_2021.Q1_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2021.Q2_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2021.Q3_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2021.Q3_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2021.Q4_sf)+
+  tm_dots()
+```
+
+### **Displaying 2022**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_2022.Q1_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2023.Q2_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2022.Q3_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2022.Q4_sf)+
+  tm_dots()
+```
+
+### **Displaying 2024**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_2024.Q1_sf)+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_2024.Q2_sf)+
+  tm_dots()
+```
+
+## **Displaying Spatio-Temporal KDE layers**
+
+### **Displaying 2021**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_sf_2021_mutated %>% 
+        filter(Quarter_label == 1))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2021_mutated %>% 
+        filter(Quarter_label == 2))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2021_mutated %>% 
+        filter(Quarter_label == 3))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2021_mutated %>% 
+        filter(Quarter_label == 4))+
+  tm_dots()
+```
+
+### **Displaying 2022**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_sf_2022_mutated %>% 
+        filter(Quarter_label == 1))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2022_mutated %>% 
+        filter(Quarter_label == 2))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2022_mutated %>% 
+        filter(Quarter_label == 3))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2022_mutated %>% 
+        filter(Quarter_label == 4))+
+  tm_dots()
+```
+
+### **Displaying 2023**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_sf_2023_mutated %>% 
+        filter(Quarter_label == 1))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2023_mutated %>% 
+        filter(Quarter_label == 2))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2023_mutated %>% 
+        filter(Quarter_label == 3))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2023_mutated %>% 
+        filter(Quarter_label == 4))+
+  tm_dots()
+```
+
+### **Displaying 2024**
+
+```{r}
+tmap_mode('view')
+tm_shape(acled_sf_2024_mutated %>% 
+        filter(Quarter_label == 1))+
+  tm_dots()
+
+tmap_mode('view')
+tm_shape(acled_sf_2024_mutated %>% 
+        filter(Quarter_label == 2))+
+  tm_dots()
+```
+
+# **Insights and Differences between KDE and Spatio-temporal KDE maps**
+
+While it might seem intuitive to assume that KDE (Kernel Density Estimation) and STKDE (Spatio-Temporal Kernel Density Estimation) would yield similar results since they use the same data points, STKDE offers a distinct advantage by incorporating time as a variable. Both methods generally highlight similar patterns, showing conflicts concentrated in central Myanmar and along the outskirts. However, the intensity of these conflict clusters can differ between the two methods.
+
+For instance, in our KDE analysis, adjustments to the sigma value were made to enhance visibility, which may account for variations in density intensity. In contrast, our STKDE analysis reveals lower intensity levels for certain periods, such as Q3 of 2023, suggesting less clustering of conflicts than initially anticipated. Conversely, in Q2 of 2024, KDE results indicate minimal conflict density across Myanmar, whereas STKDE highlights significant conflict clustering in central and peripheral areas, likely due to its ability to consider temporal factors.
+
+Overall, both KDE and STKDE consistently show conflict activity in central Myanmar and along the southern outskirts. Notably, in 2024, the data correlates with ongoing violence in Rakhine State, linked to the Arakan Army insurgency that began earlier this year.
