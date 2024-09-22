@@ -4,10 +4,12 @@ author: "Hei Yee Kai"
 date: "September 22, 2024"
 date-modified: "last-modified"
 execute: 
-  eval: false
+  eval: true
   echo: true
   freeze: true
 ---
+
+EDIT: Minor spelling edits.
 
 ## **Introduction**
 
@@ -79,6 +81,14 @@ myanmar_sf <- st_read(dsn = "data",
     "longitude", "latitude"),
            crs = 4326) %>%
   st_transform(crs = 32647)
+```
+
+### OpenStreetMap of Myanmar
+
+To import the OpenStreetMap of Myanmar, I utilized `st_read()` once more.
+
+```{r}
+osm = st_read("data", layer="gis_osm_places_a_free_1")
 ```
 
 ### **Mapping geospatial data sets**
@@ -775,148 +785,55 @@ for(i in quarters){
 
 ## **Displaying KDE layers**
 
-### **Displaying 2021**
-
 ```{r}
-tmap_mode('view')
-tm_shape(acled_2021.Q1_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2021.Q2_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2021.Q3_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2021.Q3_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2021.Q4_sf)+
-  tm_dots()
+osm <- osm %>%    
+dplyr::select('osm_id', 'fclass') 
+osm <- st_transform(osm, crs = 32647)
 ```
 
-### **Displaying 2022**
-
 ```{r}
-tmap_mode('view')
-tm_shape(acled_2022.Q1_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2023.Q2_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2022.Q3_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2022.Q4_sf)+
-  tm_dots()
+merged_myanmar <- st_union(myanmar_sf) 
+osm_myanmar <- st_intersection(osm, merged_myanmar)
+osm_myanmar <- st_cast(st_cast(osm_myanmar, "MULTILINESTRING"),"LINESTRING")
 ```
 
-### **Displaying 2024**
+```{r}
+write_rds(osm_myanmar, "data/osm_myanmar.rds")
+```
 
 ```{r}
-tmap_mode('view')
-tm_shape(acled_2024.Q1_sf)+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_2024.Q2_sf)+
-  tm_dots()
+test_density <- density(acledmyanmar_ppp,               sigma=25,               edge=TRUE,               kernel="gaussian")  
+density_raster <- raster(test_density) 
+projection(density_raster) <- CRS("+init=EPSG:32647")  
+plot(osm_myanmar)
 ```
 
 ## **Displaying Spatio-Temporal KDE layers**
 
-### **Displaying 2021**
-
 ```{r}
-tmap_mode('view')
-tm_shape(acled_sf_2021_mutated %>% 
-        filter(Quarter_label == 1))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2021_mutated %>% 
-        filter(Quarter_label == 2))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2021_mutated %>% 
-        filter(Quarter_label == 3))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2021_mutated %>% 
-        filter(Quarter_label == 4))+
-  tm_dots()
+plot_stkde <- function(kde) 
+{   
+  test_density <- density(kde,                 sigma=25,                 edge=TRUE,                 kernel="gaussian")
+  density_raster <- raster(test_density)   
+  projection(density_raster) <- CRS("+init=EPSG:32647")
+  plot(osm_myanmar) 
+}
 ```
 
-### **Displaying 2022**
-
 ```{r}
-tmap_mode('view')
-tm_shape(acled_sf_2022_mutated %>% 
-        filter(Quarter_label == 1))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2022_mutated %>% 
-        filter(Quarter_label == 2))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2022_mutated %>% 
-        filter(Quarter_label == 3))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2022_mutated %>% 
-        filter(Quarter_label == 4))+
-  tm_dots()
+plot_stkde(acled_quarter_2021_ppp)
 ```
 
-### **Displaying 2023**
-
 ```{r}
-tmap_mode('view')
-tm_shape(acled_sf_2023_mutated %>% 
-        filter(Quarter_label == 1))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2023_mutated %>% 
-        filter(Quarter_label == 2))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2023_mutated %>% 
-        filter(Quarter_label == 3))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2023_mutated %>% 
-        filter(Quarter_label == 4))+
-  tm_dots()
+plot_stkde(acled_quarter_2022_ppp)
 ```
 
-### **Displaying 2024**
+```{r}
+plot_stkde(acled_quarter_2023_ppp)
+```
 
 ```{r}
-tmap_mode('view')
-tm_shape(acled_sf_2024_mutated %>% 
-        filter(Quarter_label == 1))+
-  tm_dots()
-
-tmap_mode('view')
-tm_shape(acled_sf_2024_mutated %>% 
-        filter(Quarter_label == 2))+
-  tm_dots()
+plot_stkde(acled_quarter_2024_ppp)
 ```
 
 # **Insights and Differences between KDE and Spatio-temporal KDE maps**
