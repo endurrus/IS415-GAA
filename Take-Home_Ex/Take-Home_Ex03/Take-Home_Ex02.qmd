@@ -1,0 +1,398 @@
+---
+title: "Take-Home_Ex03"
+date: "October 19, 2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+format:
+  html:
+    toc: true
+---
+
+# **Introduction : Drug Abuse in Thailand**
+
+## **Importing Packages**
+
+```{r}
+pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)
+```
+
+## **Importing Dataset into R environment**
+
+```{r}
+crime_district <- read_csv("data/crime_district.csv")
+```
+
+```{r}
+malaysia_sf <- read_sf(dsn = "data/geospatial/mys_adm_unhcr_20210211_shp", 
+                 layer = "mys_admbnda_adm1_unhcr_20210211") %>%
+  st_as_sf(coords =c(
+    "longitude", "latitude"),
+           crs = 4326) %>%
+  st_transform(crs = 3167)
+```
+
+```{r}
+malaysia_sf <- malaysia_sf %>%
+  filter(ADM1_EN != 'Sabah') %>%
+  filter(ADM1_EN != 'Sarawak') %>%
+  filter(ADM1_EN != 'W.P. Labuan') %>%
+  mutate(state = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
+```
+
+```{r}
+malaysia_sf
+```
+
+# **Geospatial Data Wrangling**
+
+```{r}
+crime_district <- crime_district %>%
+                  filter(state !='Malaysia') %>% 
+                  filter(type !='all') %>% 
+                  filter(district =='All') %>%
+                  filter(state != 'Sabah') %>%
+                  filter(state != 'Sarawak') %>%
+                  filter(state != 'Labuan')
+crime_district
+```
+
+```{r}
+crime_district <- crime_district %>% 
+                  mutate(state = replace(state, state == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
+
+crime_district
+```
+
+```{r}
+crime_district_malaysia <- malaysia_sf %>%
+  left_join(crime_district,
+            by = c("ADM1_EN" = "state")) %>%
+  dplyr::select(1, 8:10, 13:16)
+
+crime_district_malaysia
+```
+
+# EDA 
+
+## Choropleth Map for Crime Rate by State
+
+```{r}
+# Choropleth map of crime rate by state
+tm_shape(crime_district_malaysia) +
+  tm_polygons("rate", 
+              style = "quantile", 
+              palette = "YlOrRd", 
+              title = "Crime Rate") +
+  tm_layout(title = "Crime Rate by State in Malaysia", 
+            title.size = 1.2, 
+            frame = FALSE)
+```
+
+## Histogram
+
+```{r}
+# Histogram for total crime rate
+ggplot(crime_district, aes(x = rate)) +
+  geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+  labs(title = "Distribution of Crime Rates",
+       x = "Crime Rate", y = "Frequency") +
+  theme_minimal()
+
+# Histogram for specific crime types (replace 'violent' with actual crime types in your dataset)
+ggplot(crime_district %>% filter(type == 'violent'), aes(x = rate)) +
+  geom_histogram(binwidth = 5, fill = "red", color = "black") +
+  labs(title = "Distribution of Violent Crime Rates",
+       x = "Crime Rate", y = "Frequency") +
+  theme_minimal()
+
+```
+
+## Summary
+
+```{r}
+# Summary statistics for crime rates
+crime_summary <- crime_district %>%
+  summarise(mean_rate = mean(rate, na.rm = TRUE),
+            median_rate = median(rate, na.rm = TRUE),
+            sd_rate = sd(rate, na.rm = TRUE))
+
+crime_summary
+```
+
+# **Visualization of Drug Use Trends (2017–2022)**
+
+One of the essential tasks in geospatial analysis is to visualize the data in an intuitive and informative way. This section focuses on geovisualization, where we map the number of drug use cases across Thailand for each year from 2017 to 2022. By using equal quantile classification, we can better understand the distribution of drug offenses across provinces and identify areas with higher and lower incidences. These visualizations allow us to observe spatial patterns over time and identify regions that are particularly affected.
+
+Preliminary observations suggest that drug use is especially prevalent in the northeastern and southern regions of Thailand. Despite the proximity of the Golden Triangle in the northwest, fewer drug use cases appear in this region. This anomaly may be due to the fact that drugs are trafficked through northeastern provinces toward coastal regions, where they are then exported.
+
+```{r}
+tmap_mode("plot")
+
+```
+
+```{r}
+plots <- list()
+
+for (i in 2017:2022){
+  p <- drugoff_sf %>%
+    filter(fiscal_year == i) %>%
+    tm_shape() +
+    tm_polygons("no_cases")
+  
+  plots[[paste0("plot", i)]] <- p
+}
+
+```
+
+```{r}
+drugoff_list <- split(drugoff_sf, drugoff_sf$fiscal_year)
+```
+
+```{r}
+tm_shape(drugoff_sf) +
+  tm_fill("no_cases",
+          n = 5,
+          style = "quantile") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Equal quantile classification")
+
+```
+
+It is evident that the northeastern and southern regions of Thailand exhibit the highest concentration of drug use cases. Interestingly, despite the proximity of the Golden Triangle—a well-known drug production area located in the northwest—this region shows relatively fewer drug use incidents. This disparity may be attributed to the fact that drug trafficking routes likely pass through the northeastern provinces en route to coastal ports for further distribution or export.
+
+```{r}
+tmap_mode("plot")
+
+plot_list <- list()
+
+for (year in names(drugoff_list)) {
+  p <- tm_shape(drugoff_list[[year]]) +
+      tm_fill("no_cases",
+              n = 5,
+              style = "quantile",
+              title = "Number of Cases") + 
+      tm_borders(alpha = 0.5) +
+      tm_layout(main.title = paste("Equal Quantile Classification", year),
+                main.title.size = 0.8,
+                main.title.position = c("center", "top"), 
+                frame = FALSE,
+                legend.outside = TRUE,
+                legend.outside.position = "right")
+  
+  plot_list[[year]] <- p
+}
+
+tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
+```
+
+The data indicates that drug use was notably high from 2017 to 2019, but a decline is observed starting in 2020. This reduction in cases may potentially be linked to the impact of the COVID-19 pandemic, which could have disrupted drug trafficking routes, law enforcement activities, or access to drugs during this period.
+
+# **Drug Use Cases for 2018**
+
+## Filtering and Preparing the 2018 Data
+
+We first retrieve data for drug use cases from the year 2018. The data is stored as a list, and this specific index extracts the 2018 subset for further analysis. The goal is to conduct spatial analysis for this year's drug use cases.
+
+```{r}
+drugoff_list[[2]]
+```
+
+## Generating Contiguity Neighbors
+
+Here, we compute the contiguity neighbors for the 2018 dataset. The function `st_contiguity` calculates which geographical units (provinces) share boundaries, storing this spatial relationship in the `nb` column. This neighbor information is essential for the subsequent spatial autocorrelation analysis.
+
+A specific geometry without neighbors is manually assigned the nearest neighboring geometry to ensure proper spatial analysis.
+
+Spatial weights are computed for each province based on the contiguity information. The `st_weights` function calculates weights following the "W" style (row-standardized), which is crucial for the spatial autocorrelation measures to follow.
+
+```{r}
+wm_q_du18 <- drugoff_list[[2]] %>%
+  mutate(nb = st_contiguity(geometry))
+
+empty_index <- 68   
+nearest_index <- 67 
+
+wm_q_du18$nb[[empty_index]] <- as.integer(nearest_index)
+
+wm_q_DUC18 <- wm_q_du18 %>%
+  mutate(wt = st_weights(nb, style = "W"),
+         .before = 1)
+
+```
+
+## Moran's I: Global Spatial Autocorrelation
+
+Moran's I, a global measure of spatial autocorrelation, which indicates whether drug use cases in one province are spatially clustered or dispersed, is calculated. The `global_moran` function applies this test, and the `glimpse` function gives an overview of the resulting statistics.
+
+```{r}
+moranI_DUC18 <- global_moran(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt)
+
+glimpse(moranI_DUC18)
+
+```
+
+## Moran's I Permutation Test
+
+A permutation test for Moran's I is run to assess the statistical significance of the observed spatial autocorrelation. By setting a seed value and running 99 simulations, we can compare the observed Moran's I with a distribution of random outcomes, enhancing the robustness of the results.
+
+```{r}
+global_moran_test(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt)
+```
+
+```{r}
+set.seed(777)
+```
+
+```{r}
+global_moran_perm(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt, nsim = 99)
+```
+
+## Local Moran's I Analysis (LISA)
+
+Local Moran's I (LISA) is calculated to identify specific regions (provinces) where drug use cases are significantly clustered. Each province receives a local statistic measuring its spatial relationship with neighboring provinces. This local autocorrelation analysis helps pinpoint "hotspots" of high drug use.
+
+```{r}
+lisa_DUC18 <- wm_q_DUC18 %>% 
+  mutate(local_moran = local_moran(no_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+## Visualization of Local Moran's I
+
+The results of the Local Moran’s I analysis are visualized. The first map shows the clustering intensity of drug use cases, while the second map displays the corresponding p-values. Areas with significant local autocorrelation are highlighted, offering insights into specific regions with notable drug activity.
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+map1 <- tm_shape(lisa_DUC18) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Local Moran's I of no_cases",
+            main.title.size = 0.8)
+
+map2 <- tm_shape(lisa_DUC18) +
+  tm_fill("p_ii",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of local Moran's I",
+            main.title.size = 0.8)
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+## Filtering Significant Results
+
+Only provinces with statistically significant local Moran's I values (p-value \< 0.05) are filtered for further analysis. These regions are displayed on a map, highlighting the key areas where drug use cases are either clustered or dispersed.
+
+```{r}
+lisa_sig_DUC18 <- lisa_DUC18 %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(lisa_DUC18) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig_DUC18) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+## Inverse Distance Weights
+
+Inverse distance weights are calculated here to account for spatial relationships beyond just contiguity. This method emphasizes nearby locations more than distant ones and is used to enhance the local Gi\* analysis in the next step.
+
+```{r}
+wm_idw_DUC18 <- wm_q_du18 %>%
+  mutate(wts = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+## Local Gi\* Analysis
+
+The local Gi\* statistic is computed to detect "hot" or "cold" spots of drug use cases. This method identifies clusters where provinces either have significantly higher or lower drug use compared to their neighbors. These clusters can indicate concentrated areas of drug problems or effective control.
+
+```{r}
+HCSA_DUC18 <- wm_idw_DUC18 %>% 
+  mutate(local_Gi = local_gstar_perm(
+    no_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+HCSA_DUC18
+```
+
+## Visualizing Local Gi\* Results
+
+The Local Gi\* analysis results are visualized in two maps: one showing Gi\* values and the other displaying p-values. These maps help identify significant spatial clusters, highlighting areas with abnormal drug use case patterns for deeper investigation.
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(HCSA_DUC18) +
+  tm_fill("gi_star", palette = "-RdBu", style = "cont") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(HCSA_DUC18) + tm_fill("p_sim") + tm_borders(alpha = 0.5)
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+map1 <- tm_shape(HCSA_DUC18) +
+  tm_fill("gi_star", palette = "-RdBu", style = "cont") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of GDPPC",
+            main.title.size = 0.8)
+
+map2 <- tm_shape(HCSA_DUC18) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+## Significant Gi\* Results
+
+The final step filters provinces where the Gi\* statistic is significant (p-value \< 0.05). These significant regions are displayed on a map, offering an overview of "hot" and "cold" spots in drug use across Thailand in 2018.
+
+```{r}
+HCSA_sig_DUC18 <- HCSA_DUC18  %>%
+  filter(p_sim < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(HCSA_DUC18) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig_DUC18) +
+  tm_fill("gi_star", palette = "-RdBu", style = "cont") + 
+  tm_borders(alpha = 0.4)
+```
