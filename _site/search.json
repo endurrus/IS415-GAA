@@ -509,5 +509,187 @@
     "title": "Take-Home_Ex02",
     "section": "Significant Gi* Results",
     "text": "Significant Gi* Results\nThe final step filters provinces where the Gi* statistic is significant (p-value &lt; 0.05). These significant regions are displayed on a map, offering an overview of “hot” and “cold” spots in drug use across Thailand in 2018.\n\nHCSA_sig_DUC18 &lt;- HCSA_DUC18  %&gt;%\n  filter(p_sim &lt; 0.05)\ntmap_mode(\"plot\")\n\ntmap mode set to plotting\n\n\n\ntm_shape(HCSA_DUC18) +\n  tm_polygons() +\n  tm_borders(alpha = 0.5) +\ntm_shape(HCSA_sig_DUC18) +\n  tm_fill(\"gi_star\", palette = \"-RdBu\", style = \"cont\") + \n  tm_borders(alpha = 0.4)\n\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them).\n\n\nVariable(s) \"gi_star\" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette."
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html",
+    "title": "In-Class_Ex09",
+    "section": "",
+    "text": "pacman::p_load(spdep, sp, tmap, sf, ClustGeo, \n               cluster, factoextra, NbClust,\n               tidyverse, GGally)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#loading-r-packages",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#loading-r-packages",
+    "title": "In-Class_Ex09",
+    "section": "",
+    "text": "pacman::p_load(spdep, sp, tmap, sf, ClustGeo, \n               cluster, factoextra, NbClust,\n               tidyverse, GGally)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#importing-the-data",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#importing-the-data",
+    "title": "In-Class_Ex09",
+    "section": "Importing the data",
+    "text": "Importing the data\n\n\nshan_sf &lt;- read_rds(\"data/rds/shan_sf.rds\")\nshan_ict &lt;- read_rds(\"data/rds/shan_ict.rds\")\nshan_sf_cluster &lt;- read_rds(\"data/rds/shan_sf_cluster.rds\")"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#conventional-hierarchical-clustering",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#conventional-hierarchical-clustering",
+    "title": "In-Class_Ex09",
+    "section": "Conventional Hierarchical Clustering",
+    "text": "Conventional Hierarchical Clustering\n\nHierachical clusteringAppend to the geospatial dataThe dendrogramCluster map\n\n\n\n\nproxmat &lt;- dist(shan_ict, method = 'euclidean')\nhclust_ward &lt;- hclust(proxmat, method = 'ward.D')\ngroups &lt;- as.factor(cutree(hclust_ward, k=6))\n\n\n\n\n\n\nshan_sf_cluster &lt;- cbind(shan_sf, \n                         as.matrix(groups)) %&gt;%\n  rename(`CLUSTER`=`as.matrix.groups.`) %&gt;%\n  select(-c(3:4, 7:9)) %&gt;%\n  rename(TS = TS.x)\n\n\n\n\n\n\nplot(hclust_ward, cex = 0.6)\nrect.hclust(hclust_ward, k = 6, border = 2:5)\n\n\n\n\n\n\n\n\n\n\n\n\n\nqtm(shan_sf_cluster, \"CLUSTER\")"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#spatially-constrained-clustering-skater-method",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#spatially-constrained-clustering-skater-method",
+    "title": "In-Class_Ex09",
+    "section": "Spatially Constrained Clustering: SKATER method",
+    "text": "Spatially Constrained Clustering: SKATER method\n\nStep 1: Computing nearest neighbours\n\n\n\n\nshan.nb &lt;- poly2nb(shan_sf)\nsummary(shan.nb)\n\nNeighbour list object:\nNumber of regions: 55 \nNumber of nonzero links: 264 \nPercentage nonzero weights: 8.727273 \nAverage number of links: 4.8 \nLink number distribution:\n\n 2  3  4  5  6  7  8  9 \n 5  9  7 21  4  3  5  1 \n5 least connected regions:\n3 5 7 9 47 with 2 links\n1 most connected region:\n8 with 9 links\n\n\n\n\n\n\n\n\nStep 2: Visualising the neighbours\n\n\n\n\nplot(st_geometry(shan_sf), \n     border=grey(.5))\npts &lt;- st_coordinates(st_centroid(shan_sf))\nplot(shan.nb, \n     pts, \n     col=\"blue\", \n     add=TRUE)\n\n\n\n\n\nWarning: st_centroid assumes attributes are constant over geometries\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStep 3:Computing minimum spanning tree\n\nCalculating edge costsIncorporating these costs into a weights objectComputing MSTVisualising MST\n\n\n\n\nlcosts &lt;- nbcosts(shan.nb, shan_ict)\n\n\n\n\n\n\nshan.w &lt;- nb2listw(shan.nb, \n                   lcosts, \n                   style=\"B\")\nsummary(shan.w)\n\nCharacteristics of weights list object:\nNeighbour list object:\nNumber of regions: 55 \nNumber of nonzero links: 264 \nPercentage nonzero weights: 8.727273 \nAverage number of links: 4.8 \nLink number distribution:\n\n 2  3  4  5  6  7  8  9 \n 5  9  7 21  4  3  5  1 \n5 least connected regions:\n3 5 7 9 47 with 2 links\n1 most connected region:\n8 with 9 links\n\nWeights style: B \nWeights constants summary:\n   n   nn       S0       S1        S2\nB 55 3025 76267.65 58260785 522016004\n\n\n\n\n\n\n\nshan.mst &lt;- mstree(shan.w)\n\n\n\n\n\n\n\n\nplot(st_geometry(shan_sf), \n     border=gray(.5))\nplot.mst(shan.mst, \n         pts, \n         col=\"blue\", \n         cex.lab=0.7, \n         cex.circles=0.005, \n         add=TRUE)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#computing-spatially-constrained-clusters-using-skater-method",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#computing-spatially-constrained-clusters-using-skater-method",
+    "title": "In-Class_Ex09",
+    "section": "Computing spatially constrained clusters using SKATER method",
+    "text": "Computing spatially constrained clusters using SKATER method\n\nThe codeThe skater treeThe code to plot skater tree\n\n\n\n\nskater.clust6 &lt;- skater(edges = shan.mst[,1:2], \n                 data = shan_ict, \n                 method = \"euclidean\", \n                 ncuts = 5)\n\n\n\n\n\n\nWarning in segments(coords[id1, 1], coords[id1, 2], coords[id2, 1], coords[id2,\n: \"add\" is not a graphical parameter\nWarning in segments(coords[id1, 1], coords[id1, 2], coords[id2, 1], coords[id2,\n: \"add\" is not a graphical parameter\nWarning in segments(coords[id1, 1], coords[id1, 2], coords[id2, 1], coords[id2,\n: \"add\" is not a graphical parameter\nWarning in segments(coords[id1, 1], coords[id1, 2], coords[id2, 1], coords[id2,\n: \"add\" is not a graphical parameter\n\n\n\n\n\n\n\n\n\n\n\n\n\nplot(st_geometry(shan_sf), \n     border=gray(.5))\nplot(skater.clust6, \n     pts, \n     cex.lab=.7,\n     groups.colors=c(\"red\",\"green\",\"blue\", \"brown\", \"pink\"),\n     cex.circles=0.005, \n     add=TRUE)"
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#visualising-the-clusters-in-choropleth-map",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#visualising-the-clusters-in-choropleth-map",
+    "title": "In-Class_Ex09",
+    "section": "Visualising the clusters in choropleth map",
+    "text": "Visualising the clusters in choropleth map\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ngroups_mat &lt;- as.matrix(skater.clust6$groups)\nshan_sf_spatialcluster &lt;- cbind(shan_sf_cluster, as.factor(groups_mat)) %&gt;%\n  rename(`skater_CLUSTER`=`as.factor.groups_mat.`)\nqtm(shan_sf_spatialcluster, \"skater_CLUSTER\")\n\n\n\n\n\n\n\nPlotting the cluster maps\n\nThe codeThe Plot\n\n\n\n\nhclust.map &lt;- qtm(shan_sf_cluster,\n                  \"CLUSTER\") + \n  tm_borders(alpha = 0.5) +\n  tm_layout(legend.position = c(0.8, 0.6))\n\nshclust.map &lt;- qtm(shan_sf_spatialcluster,\n                   \"skater_CLUSTER\") + \n  tm_borders(alpha = 0.5) +\n  tm_layout(legend.position = c(0.7, 0.6))\n\ntmap_arrange(hclust.map, shclust.map,\n             asp=NA, ncol=2)\n\n\n\n\n\n\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them).\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them)."
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#spatially-constrained-clustering-clustgeo-method",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#spatially-constrained-clustering-clustgeo-method",
+    "title": "In-Class_Ex09",
+    "section": "Spatially Constrained Clustering: ClustGeo Method",
+    "text": "Spatially Constrained Clustering: ClustGeo Method\n\nComputing spatial distance matrixThe cluster graphsThe codeSaving clustGeo output\n\n\nIn the code chunk below, st_distance() of sf package is used to compute the distance matrix.\n\n\ndist &lt;- st_distance(shan_sf, shan_sf)\ndistmat &lt;- as.dist(dist)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ncr &lt;- choicealpha(proxmat, distmat, \n                  range.alpha = seq(0, 1, 0.1), \n                  K=6, graph = TRUE)\n\n\n\n\n\n\nclustG &lt;- hclustgeo(proxmat, distmat, alpha = 0.2)\ngroups &lt;- as.factor(cutree(clustG, k=6))\nshan_sf_clustGeo &lt;- cbind(shan_sf, \n                          as.matrix(groups)) %&gt;%\n  rename(`clustGeo` = `as.matrix.groups.`)\n\n\n\n\n\n\n\nVisualising the clustGeo map\n\n\nqtm(shan_sf_clustGeo, \"clustGeo\")\n\n\n\n\n\n\n\n\n\n\n\n\nComparing cluster maps\n\nThe codeThe plot\n\n\n\n\nhclust.map &lt;- qtm(shan_sf_cluster,\n                  \"CLUSTER\") + \n  tm_borders(alpha = 0.5) +\n  tm_layout(legend.position = c(0.8, 0.6))\n\nshclust.map &lt;- qtm(shan_sf_spatialcluster,\n                   \"skater_CLUSTER\") + \n  tm_borders(alpha = 0.5) +\n  tm_layout(legend.position = c(0.7, 0.6))\n\nclustGeo.map &lt;- qtm(shan_sf_clustGeo,\n                   \"clustGeo\") + \n  tm_borders(alpha = 0.5) +\n  tm_layout(legend.position = c(0.7, 0.6))\n\ntmap_arrange(hclust.map, shclust.map, \n             clustGeo.map,\n             asp=NA, ncol=3)\n\n\n\n\n\n\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them).\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them).\nWarning: One tm layer group has duplicated layer types, which are omitted. To\ndraw multiple layers of the same type, use multiple layer groups (i.e. specify\ntm_shape prior to each of them)."
+  },
+  {
+    "objectID": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#characterising-the-clusters",
+    "href": "In-Class_Ex/In-Class_Ex09/In-Class_Ex09.html#characterising-the-clusters",
+    "title": "In-Class_Ex09",
+    "section": "Characterising the clusters",
+    "text": "Characterising the clusters\n\nThe plotThe code\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nggparcoord(data = shan_sf_clustGeo, \n           columns = c(17:21), \n           scale = \"globalminmax\",\n           alphaLines = 0.2,\n           boxplot = TRUE, \n           title = \"Multiple Parallel Coordinates Plots of ICT Variables by Cluster\") +\n  facet_grid(~ clustGeo) + \n  theme(axis.text.x = element_text(angle = 30))"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html",
+    "title": "Take-Home_Ex03",
+    "section": "",
+    "text": "pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)\n\n\n\n\n\ncrime_district &lt;- read_csv(\"data/crime_district.csv\")\n\n\nmalaysia_sf &lt;- read_sf(dsn = \"data/geospatial/mys_adm_unhcr_20210211_shp\", \n                 layer = \"mys_admbnda_adm1_unhcr_20210211\") %&gt;%\n  st_as_sf(coords =c(\n    \"longitude\", \"latitude\"),\n           crs = 4326) %&gt;%\n  st_transform(crs = 3167)\n\n\nmalaysia_sf &lt;- malaysia_sf %&gt;%\n  filter(ADM1_EN != 'Sabah') %&gt;%\n  filter(ADM1_EN != 'Sarawak') %&gt;%\n  filter(ADM1_EN != 'W.P. Labuan') %&gt;%\n  mutate(state = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))\n\n\nmalaysia_sf"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#importing-packages",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#importing-packages",
+    "title": "Take-Home_Ex03",
+    "section": "",
+    "text": "pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#importing-dataset-into-r-environment",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#importing-dataset-into-r-environment",
+    "title": "Take-Home_Ex03",
+    "section": "",
+    "text": "crime_district &lt;- read_csv(\"data/crime_district.csv\")\n\n\nmalaysia_sf &lt;- read_sf(dsn = \"data/geospatial/mys_adm_unhcr_20210211_shp\", \n                 layer = \"mys_admbnda_adm1_unhcr_20210211\") %&gt;%\n  st_as_sf(coords =c(\n    \"longitude\", \"latitude\"),\n           crs = 4326) %&gt;%\n  st_transform(crs = 3167)\n\n\nmalaysia_sf &lt;- malaysia_sf %&gt;%\n  filter(ADM1_EN != 'Sabah') %&gt;%\n  filter(ADM1_EN != 'Sarawak') %&gt;%\n  filter(ADM1_EN != 'W.P. Labuan') %&gt;%\n  mutate(state = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))\n\n\nmalaysia_sf"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#choropleth-map-for-crime-rate-by-state",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#choropleth-map-for-crime-rate-by-state",
+    "title": "Take-Home_Ex03",
+    "section": "Choropleth Map for Crime Rate by State",
+    "text": "Choropleth Map for Crime Rate by State\n\n# Choropleth map of crime rate by state\ntm_shape(crime_district_malaysia) +\n  tm_polygons(\"rate\", \n              style = \"quantile\", \n              palette = \"YlOrRd\", \n              title = \"Crime Rate\") +\n  tm_layout(title = \"Crime Rate by State in Malaysia\", \n            title.size = 1.2, \n            frame = FALSE)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#histogram",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#histogram",
+    "title": "Take-Home_Ex03",
+    "section": "Histogram",
+    "text": "Histogram\n\n# Histogram for total crime rate\nggplot(crime_district, aes(x = rate)) +\n  geom_histogram(binwidth = 5, fill = \"blue\", color = \"black\") +\n  labs(title = \"Distribution of Crime Rates\",\n       x = \"Crime Rate\", y = \"Frequency\") +\n  theme_minimal()\n\n# Histogram for specific crime types (replace 'violent' with actual crime types in your dataset)\nggplot(crime_district %&gt;% filter(type == 'violent'), aes(x = rate)) +\n  geom_histogram(binwidth = 5, fill = \"red\", color = \"black\") +\n  labs(title = \"Distribution of Violent Crime Rates\",\n       x = \"Crime Rate\", y = \"Frequency\") +\n  theme_minimal()"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#summary",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#summary",
+    "title": "Take-Home_Ex03",
+    "section": "Summary",
+    "text": "Summary\n\n# Summary statistics for crime rates\ncrime_summary &lt;- crime_district %&gt;%\n  summarise(mean_rate = mean(rate, na.rm = TRUE),\n            median_rate = median(rate, na.rm = TRUE),\n            sd_rate = sd(rate, na.rm = TRUE))\n\ncrime_summary"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#filtering-and-preparing-the-2018-data",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#filtering-and-preparing-the-2018-data",
+    "title": "Take-Home_Ex03",
+    "section": "Filtering and Preparing the 2018 Data",
+    "text": "Filtering and Preparing the 2018 Data\nWe first retrieve data for drug use cases from the year 2018. The data is stored as a list, and this specific index extracts the 2018 subset for further analysis. The goal is to conduct spatial analysis for this year’s drug use cases.\n\ndrugoff_list[[2]]"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#generating-contiguity-neighbors",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#generating-contiguity-neighbors",
+    "title": "Take-Home_Ex03",
+    "section": "Generating Contiguity Neighbors",
+    "text": "Generating Contiguity Neighbors\nHere, we compute the contiguity neighbors for the 2018 dataset. The function st_contiguity calculates which geographical units (provinces) share boundaries, storing this spatial relationship in the nb column. This neighbor information is essential for the subsequent spatial autocorrelation analysis.\nA specific geometry without neighbors is manually assigned the nearest neighboring geometry to ensure proper spatial analysis.\nSpatial weights are computed for each province based on the contiguity information. The st_weights function calculates weights following the “W” style (row-standardized), which is crucial for the spatial autocorrelation measures to follow.\n\nwm_q_du18 &lt;- drugoff_list[[2]] %&gt;%\n  mutate(nb = st_contiguity(geometry))\n\nempty_index &lt;- 68   \nnearest_index &lt;- 67 \n\nwm_q_du18$nb[[empty_index]] &lt;- as.integer(nearest_index)\n\nwm_q_DUC18 &lt;- wm_q_du18 %&gt;%\n  mutate(wt = st_weights(nb, style = \"W\"),\n         .before = 1)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#morans-i-global-spatial-autocorrelation",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#morans-i-global-spatial-autocorrelation",
+    "title": "Take-Home_Ex03",
+    "section": "Moran’s I: Global Spatial Autocorrelation",
+    "text": "Moran’s I: Global Spatial Autocorrelation\nMoran’s I, a global measure of spatial autocorrelation, which indicates whether drug use cases in one province are spatially clustered or dispersed, is calculated. The global_moran function applies this test, and the glimpse function gives an overview of the resulting statistics.\n\nmoranI_DUC18 &lt;- global_moran(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt)\n\nglimpse(moranI_DUC18)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#morans-i-permutation-test",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#morans-i-permutation-test",
+    "title": "Take-Home_Ex03",
+    "section": "Moran’s I Permutation Test",
+    "text": "Moran’s I Permutation Test\nA permutation test for Moran’s I is run to assess the statistical significance of the observed spatial autocorrelation. By setting a seed value and running 99 simulations, we can compare the observed Moran’s I with a distribution of random outcomes, enhancing the robustness of the results.\n\nglobal_moran_test(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt)\n\n\nset.seed(777)\n\n\nglobal_moran_perm(wm_q_DUC18$no_cases, wm_q_DUC18$nb, wm_q_DUC18$wt, nsim = 99)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#local-morans-i-analysis-lisa",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#local-morans-i-analysis-lisa",
+    "title": "Take-Home_Ex03",
+    "section": "Local Moran’s I Analysis (LISA)",
+    "text": "Local Moran’s I Analysis (LISA)\nLocal Moran’s I (LISA) is calculated to identify specific regions (provinces) where drug use cases are significantly clustered. Each province receives a local statistic measuring its spatial relationship with neighboring provinces. This local autocorrelation analysis helps pinpoint “hotspots” of high drug use.\n\nlisa_DUC18 &lt;- wm_q_DUC18 %&gt;% \n  mutate(local_moran = local_moran(no_cases, nb, wt, nsim = 99),\n         .before = 1) %&gt;%\n  unnest(local_moran)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#visualization-of-local-morans-i",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#visualization-of-local-morans-i",
+    "title": "Take-Home_Ex03",
+    "section": "Visualization of Local Moran’s I",
+    "text": "Visualization of Local Moran’s I\nThe results of the Local Moran’s I analysis are visualized. The first map shows the clustering intensity of drug use cases, while the second map displays the corresponding p-values. Areas with significant local autocorrelation are highlighted, offering insights into specific regions with notable drug activity.\n\ntmap_mode(\"plot\")\n\n\nmap1 &lt;- tm_shape(lisa_DUC18) +\n  tm_fill(\"ii\") + \n  tm_borders(alpha = 0.5) +\n  tm_view(set.zoom.limits = c(6,8)) +\n  tm_layout(main.title = \"Local Moran's I of no_cases\",\n            main.title.size = 0.8)\n\nmap2 &lt;- tm_shape(lisa_DUC18) +\n  tm_fill(\"p_ii\",\n          breaks = c(0, 0.001, 0.01, 0.05, 1),\n              labels = c(\"0.001\", \"0.01\", \"0.05\", \"Not sig\")) + \n  tm_borders(alpha = 0.5) +\n  tm_layout(main.title = \"p-value of local Moran's I\",\n            main.title.size = 0.8)\n\ntmap_arrange(map1, map2, ncol = 2)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#filtering-significant-results",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#filtering-significant-results",
+    "title": "Take-Home_Ex03",
+    "section": "Filtering Significant Results",
+    "text": "Filtering Significant Results\nOnly provinces with statistically significant local Moran’s I values (p-value &lt; 0.05) are filtered for further analysis. These regions are displayed on a map, highlighting the key areas where drug use cases are either clustered or dispersed.\n\nlisa_sig_DUC18 &lt;- lisa_DUC18 %&gt;%\n  filter(p_ii &lt; 0.05)\ntmap_mode(\"plot\")\n\n\ntm_shape(lisa_DUC18) +\n  tm_polygons() +\n  tm_borders(alpha = 0.5) +\ntm_shape(lisa_sig_DUC18) +\n  tm_fill(\"mean\") + \n  tm_borders(alpha = 0.4)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#inverse-distance-weights",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#inverse-distance-weights",
+    "title": "Take-Home_Ex03",
+    "section": "Inverse Distance Weights",
+    "text": "Inverse Distance Weights\nInverse distance weights are calculated here to account for spatial relationships beyond just contiguity. This method emphasizes nearby locations more than distant ones and is used to enhance the local Gi* analysis in the next step.\n\nwm_idw_DUC18 &lt;- wm_q_du18 %&gt;%\n  mutate(wts = st_inverse_distance(nb, geometry,\n                                   scale = 1,\n                                   alpha = 1),\n         .before = 1)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#local-gi-analysis",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#local-gi-analysis",
+    "title": "Take-Home_Ex03",
+    "section": "Local Gi* Analysis",
+    "text": "Local Gi* Analysis\nThe local Gi* statistic is computed to detect “hot” or “cold” spots of drug use cases. This method identifies clusters where provinces either have significantly higher or lower drug use compared to their neighbors. These clusters can indicate concentrated areas of drug problems or effective control.\n\nHCSA_DUC18 &lt;- wm_idw_DUC18 %&gt;% \n  mutate(local_Gi = local_gstar_perm(\n    no_cases, nb, wt, nsim = 99),\n         .before = 1) %&gt;%\n  unnest(local_Gi)\nHCSA_DUC18"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#visualizing-local-gi-results",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#visualizing-local-gi-results",
+    "title": "Take-Home_Ex03",
+    "section": "Visualizing Local Gi* Results",
+    "text": "Visualizing Local Gi* Results\nThe Local Gi* analysis results are visualized in two maps: one showing Gi* values and the other displaying p-values. These maps help identify significant spatial clusters, highlighting areas with abnormal drug use case patterns for deeper investigation.\n\ntmap_mode(\"plot\")\n\n\ntm_shape(HCSA_DUC18) +\n  tm_fill(\"gi_star\", palette = \"-RdBu\", style = \"cont\") + \n  tm_borders(alpha = 0.5) +\n  tm_view(set.zoom.limits = c(6,8))\n\n\ntmap_mode(\"plot\")\n\n\ntm_shape(HCSA_DUC18) + tm_fill(\"p_sim\") + tm_borders(alpha = 0.5)\n\n\ntmap_mode(\"plot\")\n\n\nmap1 &lt;- tm_shape(HCSA_DUC18) +\n  tm_fill(\"gi_star\", palette = \"-RdBu\", style = \"cont\") + \n  tm_borders(alpha = 0.5) +\n  tm_view(set.zoom.limits = c(6,8)) +\n  tm_layout(main.title = \"Gi* of GDPPC\",\n            main.title.size = 0.8)\n\nmap2 &lt;- tm_shape(HCSA_DUC18) +\n  tm_fill(\"p_value\",\n          breaks = c(0, 0.001, 0.01, 0.05, 1),\n              labels = c(\"0.001\", \"0.01\", \"0.05\", \"Not sig\")) + \n  tm_borders(alpha = 0.5) +\n  tm_layout(main.title = \"p-value of Gi*\",\n            main.title.size = 0.8)\n\ntmap_arrange(map1, map2, ncol = 2)"
+  },
+  {
+    "objectID": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#significant-gi-results",
+    "href": "Take-Home_Ex/Take-Home_Ex03/Take-Home_Ex03.html#significant-gi-results",
+    "title": "Take-Home_Ex03",
+    "section": "Significant Gi* Results",
+    "text": "Significant Gi* Results\nThe final step filters provinces where the Gi* statistic is significant (p-value &lt; 0.05). These significant regions are displayed on a map, offering an overview of “hot” and “cold” spots in drug use across Thailand in 2018.\n\nHCSA_sig_DUC18 &lt;- HCSA_DUC18  %&gt;%\n  filter(p_sim &lt; 0.05)\ntmap_mode(\"plot\")\n\n\ntm_shape(HCSA_DUC18) +\n  tm_polygons() +\n  tm_borders(alpha = 0.5) +\ntm_shape(HCSA_sig_DUC18) +\n  tm_fill(\"gi_star\", palette = \"-RdBu\", style = \"cont\") + \n  tm_borders(alpha = 0.4)"
   }
 ]
