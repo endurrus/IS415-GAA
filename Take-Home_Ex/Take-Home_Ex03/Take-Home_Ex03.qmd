@@ -11,7 +11,7 @@ format:
     toc: true
 ---
 
-# **Introduction : Drug Abuse in Thailand**
+# **Introduction**
 
 ## **Importing Packages**
 
@@ -26,8 +26,8 @@ crime_district <- read_csv("data/crime_district.csv")
 ```
 
 ```{r}
-malaysia_sf <- read_sf(dsn = "data/geospatial/mys_adm_unhcr_20210211_shp", 
-                 layer = "mys_admbnda_adm1_unhcr_20210211") %>%
+malaysia_sf <- read_sf(dsn = "data/my_shp", 
+                 layer = "my") %>%
   st_as_sf(coords =c(
     "longitude", "latitude"),
            crs = 4326) %>%
@@ -36,10 +36,10 @@ malaysia_sf <- read_sf(dsn = "data/geospatial/mys_adm_unhcr_20210211_shp",
 
 ```{r}
 malaysia_sf <- malaysia_sf %>%
-  filter(ADM1_EN != 'Sabah') %>%
-  filter(ADM1_EN != 'Sarawak') %>%
-  filter(ADM1_EN != 'W.P. Labuan') %>%
-  mutate(state = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
+  filter(name != 'Sabah') %>%
+  filter(name != 'Sarawak') %>%
+  filter(name != 'W.P. Labuan') %>%
+  mutate(state = replace(name, name == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
 ```
 
 ```{r}
@@ -69,8 +69,8 @@ crime_district
 ```{r}
 crime_district_malaysia <- malaysia_sf %>%
   left_join(crime_district,
-            by = c("ADM1_EN" = "state")) %>%
-  dplyr::select(1, 8:10, 13:16)
+            by = c("name" = "state")) %>%
+  dplyr::select(1:2, 5:10)
 
 crime_district_malaysia
 ```
@@ -80,32 +80,30 @@ crime_district_malaysia
 ## Choropleth Map for Crime Rate by State
 
 ```{r}
-# Choropleth map of crime rate by state
+# Set tmap mode to view (interactive) or plot (static)
+tmap_mode("plot")
+
+# Create a choropleth map of crime rates across Malaysian states
 tm_shape(crime_district_malaysia) +
-  tm_polygons("rate", 
-              style = "quantile", 
-              palette = "YlOrRd", 
-              title = "Crime Rate") +
-  tm_layout(title = "Crime Rate by State in Malaysia", 
-            title.size = 1.2, 
-            frame = FALSE)
+  tm_polygons("crime_rate", 
+              title = "Crime Rate",
+              palette = "Blues", 
+              style = "quantile") +
+  tm_borders() +
+  tm_layout(title = "Choropleth Map of Crime Rates in Malaysian States",
+            legend.outside = TRUE)
+
 ```
 
 ## Histogram
 
 ```{r}
-# Histogram for total crime rate
-ggplot(crime_district, aes(x = rate)) +
+# Histogram of crime rates across states
+ggplot(crime_district, aes(x = crime_district_malaysia)) +  # Adjust column name to reflect your dataset
   geom_histogram(binwidth = 5, fill = "blue", color = "black") +
-  labs(title = "Distribution of Crime Rates",
-       x = "Crime Rate", y = "Frequency") +
-  theme_minimal()
-
-# Histogram for specific crime types (replace 'violent' with actual crime types in your dataset)
-ggplot(crime_district %>% filter(type == 'violent'), aes(x = rate)) +
-  geom_histogram(binwidth = 5, fill = "red", color = "black") +
-  labs(title = "Distribution of Violent Crime Rates",
-       x = "Crime Rate", y = "Frequency") +
+  labs(title = "Distribution of Crime Rates in Malaysian States",
+       x = "Crime Rate",
+       y = "Frequency") +
   theme_minimal()
 
 ```
