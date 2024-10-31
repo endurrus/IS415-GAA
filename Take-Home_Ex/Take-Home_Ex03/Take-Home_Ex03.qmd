@@ -12,82 +12,404 @@ format:
     toc: true
 ---
 
-# **Introduction**
+# 1. Introduction
 
-## **Importing Packages**
+## 1.1 Responsibility
+
+## 1.2 Motivation
+
+## 1.3 Objectives
+
+# 2. Packages and Data
+
+## 2.1 Packages Required
 
 ```{r}
-pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)
+pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, 
+               spatstat, sfdep, ClustGeo, ggpubr, cluster, factoextra, 
+               NbClust, heatmaply, corrplot, psych, tidyverse, GGally)
 ```
 
-## **Importing Dataset into R environment**
+## 2.2 Data Required
+
+There are two datasets being used in this exercise.
+
+-   [Malaysia – Crime by District and Crime Type](https://data.gov.my/data-catalogue/crime_district) from data.gov.my in csv format.
+
+-   [Malaysia - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-mys) with included administrative regions in shapefile format.
+
+-   [Malaysia – Annual Principal Labour Force Statistics by District](https://data.gov.my/data-catalogue/lfs_district) from data.gov.my in csv format.
+
+-   [Malaysia – Household Income and Expenditure: Administrative Districts](https://data.gov.my/data-catalogue/hies_district) from data.gov.my in csv format.
+
+-   [Malaysia – Enrolment in Government Schools by District](https://data.gov.my/data-catalogue/enrolment_school_district) from data.gov.my in csv format.
+
+-   [Malaysia – Enrolment in Government Schools by District](https://data.gov.my/data-catalogue/enrolment_school_district) from data.gov.my in csv format.
+
+We first import the crime rate csv file into R.
 
 ```{r}
-crime_district <- read_csv("data/crime_district.csv")
+crime_df <- read_csv("data/crime_district.csv")
+population_df <- read_csv("data/population_district.csv")
 ```
 
+Next, we import the administrative regions of Malaysia.
+
 ```{r}
-malaysia_sf <- read_sf(dsn = "data/my_shp", 
+mys_sf <- read_sf(dsn = "data/my_shp", 
                  layer = "mys_admbnda_adm2_unhcr_20210211") %>%
-  st_as_sf(coords =c(
-    "longitude", "latitude"),
-           crs = 4326) %>%
-  st_transform(crs = 3168)
+          st_transform(crs = 3168)
 ```
 
+## 2.3 Wrangling
+
+### 2.3.1 Data Preparation
+
 ```{r}
-malaysia_sf <- malaysia_sf %>%
-filter(ADM1_EN != 'W.P. Labuan' & ADM1_EN != 'Sabah' & ADM1_EN != 'Sarawak') %>%
-          mutate(ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'),
-                 ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. Putrajaya', 'Selangor'), 
-                 ADM1_EN = toupper(ADM1_EN),
-                 ADM2_EN = toupper(ADM2_EN))
+print("Unique states in crime_df:")
+unique(crime_df$state)
+
+print("Unique states in population_df:")
+unique(crime_df$state)
+
+print("Unique states in mys_sf:")
+unique(mys_sf$ADM1_EN)
 ```
 
-```{r}
-malaysia_sf
-```
-
-# **Geospatial Data Wrangling**
+Convert state and district to upper for matching
 
 ```{r}
-crime_district <- crime_district %>%
-              filter(state != 'Malaysia' & state != 'Sabah' & state != 'Sarawak') %>%
-              mutate(state = replace(state, state == 'W.P. Kuala Lumpur', 'Kuala Lumpur'),
+crime_df <- crime_df %>%
+              mutate(year = year(date),
                      state = toupper(state),
-                     district = toupper(district)) %>%
-                  filter(district != 'ALL')  %>%
-                  filter(type != 'all') 
-crime_district
+                     district = toupper(district))
+crime_df
 ```
 
 ```{r}
-crime_district_malaysia <- malaysia_sf %>%
-  left_join(crime_district,
-            by = c("ADM1_EN" = "state",
-                   "ADM2_EN" = "district")) %>%
-  dplyr::select(1, 6, 13:19)
-
-crime_district_malaysia
+population_df <- population_df %>%
+              mutate(year = year(date),
+                     state = toupper(state),
+                     district = toupper(district))
+population_df
 ```
 
 ```{r}
-crime_district_malaysia_sf <- st_as_sf(crime_district_malaysia)
-st_crs(crime_district_malaysia_sf) <- st_crs(malaysia_sf)
+mys_sf <- mys_sf %>%
+          mutate(ADM1_EN = toupper(ADM1_EN),
+                 ADM2_EN = toupper(ADM2_EN))
+
+mys_sf
+```
+
+### 2.3.2 Checking for Mismatch (State)
+
+```{r}
+# Assuming you have two character vectors:
+state_crime <- unique(crime_df$state)
+state_sf <- unique(mys_sf$ADM1_EN)
+
+# Find states in crime_df that are not in mys_sf
+missing_in_sf <- setdiff(state_crime, state_sf)
+
+# Find states in mys_sf that are not in crime_df
+missing_in_crime <- setdiff(state_sf, state_crime)
+
+# Print the mismatches
+print("States in crime_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("States in mys_sf not found in crime_df:")
+print(missing_in_crime)
+```
+
+### 2.3.3 Cleaning (State)
+
+However in this case study, for ease of analysis, we choose to focus on West Malaysia, and thus will be filtering out Sarawak, Sabah and Labuan.
+
+```{r}
+mys_sf <- mys_sf %>%
+          filter(ADM1_EN != 'W.P. LABUAN' & ADM1_EN != 'SABAH' & ADM1_EN != 'SARAWAK') %>%
+          mutate(ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'),
+                 ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. PUTRAJAYA', 'KUALA LUMPUR'))
+
+mys_sf
+```
+
+```{r}
+crime_df <- crime_df %>%
+              filter(state != 'MALAYSIA' & state != 'SABAH' & state != 'SARAWAK' & 
+                     district != 'ALL' & type != 'all') %>%
+              mutate(state = replace(state, state == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'))
+crime_df
+```
+
+```{r}
+population_df <- population_df %>%
+          filter(state != 'SABAH' & state != 'SARAWAK' & state != 'W.P. LABUAN' &
+                 sex == "both" & age == "overall" & ethnicity == "overall" ) %>%
+          mutate(state = replace(state, state == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'),
+                 state = replace(state, state == 'W.P. PUTRAJAYA', 'KUALA LUMPUR')) %>%
+          dplyr::select(state, district, year, population)
+population_df
+```
+
+### 2.3.4 Crime (State-District)
+
+#### 2.3.4.1 Check for Mismatch
+
+```{r}
+crime_df <- crime_df %>% mutate(state_district = paste(state, district, sep = "-"))
+mys_sf <- mys_sf %>% mutate(state_district = paste(ADM1_EN, ADM2_EN, sep = "-"))
+```
+
+```{r}
+# Assuming you have two character vectors:
+state_district_crime <- unique(crime_df$state_district)
+state_district_sf <- unique(mys_sf$state_district)
+
+# Find mismatches
+missing_in_sf <- setdiff(state_district_crime, state_district_sf)
+missing_in_crime <- setdiff(state_district_sf, state_district_crime)
+
+# Print the mismatches
+print("State-District combinations in crime_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("State-District combinations in mys_sf not found in crime_df:")
+print(missing_in_crime)
+```
+
+#### 2.3.4.2 Cleaning
+
+```{r}
+crime_df <- crime_df %>%
+  mutate(district = case_when(
+    state == "JOHOR" & district %in% c("ISKANDAR PUTERI", "NUSAJAYA", "JOHOR BAHRU SELATAN", "JOHOR BAHRU UTARA", "SERI ALAM") ~ "JOHOR BAHRU",
+    state == "NEGERI SEMBILAN" & district == "NILAI" ~ "SEREMBAN",
+    state == "KEDAH" & district == "BANDAR BHARU" ~ "BANDAR BAHARU",
+    state == "PAHANG" & district == "CAMERON HIGHLAND" ~ "CAMERON HIGHLANDS",
+    state == "PAHANG" & district == "KUALA LIPIS" ~ "LIPIS",
+    state == "PERAK" & district  %in% c("BATU GAJAH", "IPOH") ~ "KINTA",
+    state == "PERAK" & district == "GERIK" ~ "ULU PERAK",
+    state == "PERAK" & district == "MANJUNG" ~ "MANJUNG (DINDING)",
+    state == "PERAK" & district == "PENGKALAN HULU" ~ "ULU PERAK",
+    state == "PERAK" & district %in% c("SELAMA", "TAIPING") ~ "LARUT DAN MATANG",
+    state == "PERAK" & district == "SUNGAI SIPUT" ~ "KUALA KANGSAR",
+    state == "PERAK" & district %in% c("TANJONG MALIM", "TAPAH") ~ "BATANG PADANG",
+    state == "PERLIS" & district %in% c("ARAU", "KANGAR", "PADANG BESAR") ~ "PERLIS",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI UTARA" ~ "S.P. UTARA",
+    state == "SELANGOR" & district == "AMPANG JAYA" ~ "GOMBAK",
+    state == "SELANGOR" & district == "HULU SELANGOR" ~ "ULU SELANGOR",
+    state == "SELANGOR" & district == "KAJANG" ~ "ULU LANGAT",
+    state == "SELANGOR" & district %in% c("KLANG SELATAN", "KLANG UTARA") ~ "KLANG",
+    state == "SELANGOR" & district %in% c("PETALING JAYA", "SERDANG", "SG. BULOH", "SHAH ALAM", "SUBANG JAYA", "SUNGAI BULOH") ~ "PETALING",
+    state == "KUALA LUMPUR" & district %in% c("BRICKFIELDS", "CHERAS", "DANG WANGI", "SENTUL", "WANGSA MAJU") ~ "WP. KUALA LUMPUR",
+    TRUE ~ district
+  )) %>%
+  group_by(state, district, year, category, type) %>%
+  summarise(crimes = sum(crimes))
+```
+
+```{r}
+tm_shape(mys_sf) +
+  tm_polygons() +
+  tm_text("ADM2_EN", size = 0.3)
+```
+
+#### 2.3.4.3 Visualizing Crime Distribution
+
+```{r}
+crime_df_mys <- crime_df %>%
+  filter(year >= 2019 & year <= 2022) %>%
+  left_join(mys_sf, by = c("state" = "ADM1_EN", "district" = "ADM2_EN")) %>%
+  dplyr::select(state, district, year, category, type, crimes, geometry)
+
+crime_df_mys <- st_as_sf(crime_df_mys)
+crime_df_mys
+```
+
+```{r}
+tmap_mode("plot")
+
+crime_df_mys_grp <- crime_df_mys %>%
+  group_by(state, district) %>%
+  summarize(total_crimes = sum(crimes))
+
+choro <- tm_shape(crime_df_mys_grp) +
+  tm_fill("total_crimes", 
+          style = "pretty", 
+          palette = "Blues",
+          title = "Crimes") +
+  tm_layout(main.title = "Distribution of crime in West Malaysia",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+choro
+```
+
+### 2.3.5 Population (State-District)
+
+#### 2.3.5.1 Check for Mismatch
+
+The year 2019 is missing from data set, hence we will map year 2020 -\> 2019.
+
+```{r}
+population_row <- population_df %>%
+  filter(year == 2020) %>%
+  mutate(year = 2019) 
+population_df <- bind_rows(population_df, population_row)
+unique(population_df$year)
+```
+
+```{r}
+population_df <- population_df %>% mutate(state_district = paste(state, district, sep = "-"))
+```
+
+```{r}
+# Assuming you have two character vectors:
+state_district_population <- unique(population_df$state_district)
+
+# Find mismatches
+missing_in_sf <- setdiff(state_district_population, state_district_sf)
+missing_in_population <- setdiff(state_district_sf, state_district_population)
+
+# Print the mismatches
+print("State-District combinations in population_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("State-District combinations in mys_sf not found in population_df:")
+print(missing_in_population)
+```
+
+#### 2.3.5.2 Cleaning
+
+```{r}
+population_df <- population_df %>%
+  mutate(district = case_when(
+    state == "JOHOR" & district == "KULAI" ~ "KULAIJAYA",
+    state == "JOHOR" & district == "TANGKAK" ~ "LEDANG",
+    state == "KELANTAN" & district == "KECIL LOJING" ~ "GUA MUSANG",
+    state == "PAHANG" & district == "CAMERON HIGHLAND" ~ "CAMERON HIGHLANDS",
+    state == "PERAK" & district == "HULU PERAK" ~ "ULU PERAK",
+    state == "PERAK" & district == "BAGAN DATUK" ~ "HILIR PERAK",
+    state == "PERAK" & district == "MANJUNG" ~ "MANJUNG (DINDING)",
+    state == "PERAK" & district == "MUALLIM" ~ "BATANG PADANG",
+    state == "PERAK" & district == "SELAMA" ~ "LARUT DAN MATANG",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI UTARA" ~ "S.P. UTARA",
+    state == "PULAU PINANG" & district == "SP SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SP TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SP UTARA" ~ "S.P. UTARA",
+    state == "TERENGGANU" & district == "KUALA NERUS" ~ "KUALA TERENGGANU",
+    state == "KUALA LUMPUR" & district == "W.P. KUALA LUMPUR" ~ "WP. KUALA LUMPUR",
+    TRUE ~ district
+  )) %>%
+  group_by(state, district, year) %>%
+  summarise(population = sum(population))
+
+population_df
+```
+
+```{r}
+tm_shape(mys_sf) +
+  tm_polygons() +
+  tm_text("ADM2_EN", size = 0.3)
+```
+
+### 2.3.6 Joining
+
+#### 2.3.6.1 Join with Population Data
+
+```{r}
+crime_df_mys <- crime_df %>% 
+  filter(year >= 2019 & year <= 2022) %>%
+  left_join(population_df, by = c("state", "district", "year")) %>%
+  mutate(crimes_pc = crimes/population) %>%
+  dplyr::select(state, district, year, category, type, crimes, crimes_pc, population)
+```
+
+#### 2.3.6.2 Create for Pokok Sena District
+
+```{r}
+pokok_sena_rows <- crime_df_mys %>%
+  filter(state == "KEDAH") %>%
+  group_by(state, year, category, type) %>%
+  summarise(crimes = mean(crimes),
+            crimes_pc = mean(crimes_pc),
+            population = mean(population)) %>% 
+  mutate(district = "POKOK SENA")
+
+pokok_sena_rows
+crime_df_mys <- bind_rows(crime_df_mys, pokok_sena_rows)
+```
+
+#### 2.3.6.3 Join with District Boundary
+
+```{r}
+crime_df_mys <- crime_df_mys %>%
+  left_join(mys_sf, by = c("state" = "ADM1_EN", "district" = "ADM2_EN")) %>%
+  dplyr::select(state, district, year, category, type, crimes, crimes_pc, population, geometry)
+
+crime_df_mys <- st_as_sf(crime_df_mys)
+crime_df_mys
+```
+
+### 2.3.7 Visualizing the distribution of crime
+
+```{r}
+tmap_mode("plot")
+
+crime_df_mys_grp <- crime_df_mys %>%
+  group_by(state, district) %>%
+  summarize(total_crimes_pc = sum(crimes_pc)/4)
+
+choro <- tm_shape(crime_df_mys_grp) +
+  tm_fill("total_crimes_pc", 
+          style = "pretty", 
+          palette = "Blues",
+          title = "Crimes") +
+  tm_layout(main.title = "Distribution of crime in West Malaysia",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_grid(alpha =0.2)
+
+choro
 ```
 
 # **EDA**
 
-## **Choropleth**
-
-### **Choropleth Map for Crime Rate by State**
-
 ```{r}
-tmap_mode("plot")
+crime_df_transformed <- crime_df_mys %>%
+  mutate(type = case_when(
+    grepl("robbery", type) ~ "robbery",
+    grepl("theft", type) ~ "theft",
+    TRUE ~ type
+  ))
+
+unique(crime_df_transformed$type)
 ```
 
+## **Choropleth**
+
+### **Choropleth Map for Overall Crime Rate by State**
+
 ```{r}
-tm_shape(crime_district_malaysia_sf) +
+tm_shape(crime_df_transformed) +
   tm_fill("crimes", 
           style = "quantile", 
           palette = "Blues",
@@ -102,14 +424,71 @@ tm_shape(crime_district_malaysia_sf) +
   tm_grid(alpha =0.2)
 ```
 
-### **Choropleth Map for Crime Rate by Category**
+```{r}
+create_district_choropleth <- function(data, state_name, var_name) {
+  state_data <- data[data$state == state_name,]
+  tm_shape(state_data) +
+    tm_fill(var_name, 
+            style = "quantile",
+            palette = "Blues",
+            title = paste("Crime Rate -", var_name)) +
+    tm_borders(alpha = 0.5) +
+    tm_layout(main.title = paste("Distribution of", var_name, "in", state_name),
+              main.title.position = "center",
+              main.title.size = 1.2,
+              legend.height = 0.45, 
+              legend.width = 0.35,
+              frame = TRUE) +
+    tm_grid(alpha =0.2)
+}
+
+plot_list <- list()
+
+for (state in unique(crime_df_transformed$state)) {
+  district_map <- create_district_choropleth(crime_df_transformed, state, "crimes")
+    plot_list[[state]] <- district_map
+}
+
+tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
+```
+
+### **Choropleth Map for Crime Rate per Capita by State**
 
 ```{r}
-table(crime_district_malaysia_sf$category)
+tm_shape(crime_df_transformed) +
+  tm_fill("crimes_pc", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Crime Ratio") +
+  tm_layout(main.title = "Distribution of Crime Per Capita Ratio by planning subzone",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_grid(alpha =0.2)
 ```
 
 ```{r}
-assault_data <- subset(crime_district_malaysia_sf, category == "assault")
+plot_list <- list()
+
+for (state in unique(crime_df_transformed$state)) {
+  district_map <- create_district_choropleth(crime_df_transformed, state, "crimes_pc")
+    plot_list[[state]] <- district_map
+}
+
+tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
+```
+
+### **Choropleth Map for Overall Crime Rate by Category**
+
+```{r}
+table(crime_df_transformed$category)
+```
+
+```{r}
+assault_data <- subset(crime_df_transformed, category == "assault")
 
 tm_shape(assault_data) +
   tm_fill("crimes", 
@@ -128,7 +507,7 @@ tm_shape(assault_data) +
 ```
 
 ```{r}
-property_data <- subset(crime_district_malaysia_sf, category == "property")
+property_data <- subset(crime_df_transformed, category == "property")
 
 tm_shape(property_data) +
   tm_fill("crimes", 
@@ -145,93 +524,162 @@ tm_shape(property_data) +
   tm_grid(alpha =0.2)
 ```
 
-### **Choropleth Map for Crime Rate by Type**
+### **Choropleth Map for Crime Rate per Capita by Category**
 
 ```{r}
-table(crime_district_malaysia_sf$type)
+tm_shape(assault_data) +
+  tm_fill("crimes_pc", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Crime Ratio") +
+  tm_layout(main.title = "Distribution of Assault Crime per Capita Ratio by planning subzone",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_grid(alpha =0.2)
+```
+
+```{r}
+tm_shape(property_data) +
+  tm_fill("crimes_pc", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "Crime Ratio") +
+  tm_layout(main.title = "Distribution of Property Crime per Capita Ratio by planning subzone",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_grid(alpha =0.2)
+```
+
+### **Choropleth Map for Overall Crime Rate by Type**
+
+```{r}
+create_crime_map <- function(data, crime_type) {
+  filtered_data <- data %>% filter(type == crime_type)
+  
+  tm_shape(filtered_data) +
+    tm_fill("crimes", 
+            style = "quantile",
+            palette = "Blues",
+            title = "Crimes per Capita") +
+    tm_borders(alpha = 0.5) +
+    tm_layout(main.title = paste("Distribution of", gsub("_", " ", crime_type)),
+              main.title.position = "center",
+              main.title.size = 1.2,
+              frame = TRUE) +
+    tm_grid(alpha = 0.39)
+}
+
+plot_list <- list()
+
+# Create maps for each type
+unique_types <- unique(crime_df_transformed$type)
+for(type in unique_types) {
+  p <- create_crime_map(crime_df_transformed, type)
+  plot_list[[type]] <- p
+}
+
+tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
+```
+
+### **Choropleth Map for Crime Rate per Capita by Type**
+
+```{r}
+table(crime_df_mys$type)
 ```
 
 ```{r}
 create_crime_map <- function(data, crime_type) {
-  crime_specific <- subset(data, type == crime_type)
+  filtered_data <- data %>% filter(type == crime_type)
   
-  title <- paste("Distribution of", 
-                gsub("_", " ", crime_type), 
-                "in Malaysia")
-  
-  tm_shape(crime_specific) +
-    tm_fill("crimes",
-            palette = "Blues",
+  tm_shape(filtered_data) +
+    tm_fill("crimes_pc", 
             style = "quantile",
-            n = 5,
-            title = "Number of Cases") +
-    tm_borders(lwd = 0.1, alpha = 1) +
-    tm_layout(
-      main.title = title,
-      main.title.position = "center",
-      main.title.size = 1.2,
-      legend.height = 0.45, 
-      legend.width = 0.35,
-      frame = TRUE) +
-    tm_grid(alpha =0.2)
+            palette = "Blues",
+            title = "Crimes per Capita") +
+    tm_borders(alpha = 0.5) +
+    tm_layout(main.title = paste("Distribution of", gsub("_", " ", crime_type)),
+              main.title.position = "center",
+              main.title.size = 1.2,
+              frame = TRUE) +
+    tm_grid(alpha = 0.39)
 }
 
 plot_list <- list()
-crime_types <- c("break_in", "causing_injury", "murder", "rape", 
-                 "robbery_gang_armed", "robbery_gang_unarmed", 
-                 "robbery_solo_armed", "robbery_solo_unarmed", 
-                 "theft_other", "theft_vehicle_lorry", 
-                 "theft_vehicle_motorcar", "theft_vehicle_motorcycle")
 
-for (type in crime_types) {
-  # Filter data for specific crime type
-
-  p <- create_crime_map(crime_district_malaysia_sf, type)
+# Create maps for each type
+unique_types <- unique(crime_df_transformed$type)
+for(type in unique_types) {
+  p <- create_crime_map(crime_df_transformed, type)
   plot_list[[type]] <- p
 }
 
-tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
+tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
 ```
 
 ## **Histogram**
 
-### **Preparing Data for Histograms**
+### Histogram for Overall Crime Rate
 
 ```{r}
-crime_data_clean <- na.omit(crime_district_malaysia_sf)
+ggplot(crime_df_transformed, aes(x = crimes)) +
+  geom_histogram(fill = "steelblue", color = "black", bins = 30) +
+  labs(title = "Distribution of All Crimes",
+       x = "Number of Cases",
+       y = "Frequency") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-### **Histogram for Crime Rate by Category**
+### Histogram for Overall Crime Rate by State
 
 ```{r}
-ggplot(crime_data_clean, aes(x = crimes, fill = category)) +
-  geom_histogram(color = "black", 
-                 bins = 30, 
-                 position = "identity", 
-                 alpha = 0.7) +
-  labs(title = "Distribution of Crimes by Category",
-       x = "Number of Cases",
-       y = "Frequency",
-       fill = "Category") +
+ggplot(crime_df_transformed, aes(x = crimes, fill = state)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  facet_wrap(~state, scales = "free") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5),
-        legend.position = "bottom") +
-  scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = "Distribution of Crimes by State",
+       x = "Number of Crimes",
+       y = "Count")
+```
 
-ggplot(crime_data_clean, aes(x = crimes, fill = category)) +
-  geom_density(alpha = 0.7) +
-  labs(title = "Density Distribution of Crimes by Category",
-       x = "Number of Cases",
-       y = "Density",
-       fill = "Category") +
+### Histogram for Crime Rate per Capita by State
+
+```{r}
+ggplot(crime_df_transformed, aes(x = crimes_pc, fill = state)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  facet_wrap(~state, scales = "free") +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5),
-        legend.position = "bottom") +
-  scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title = "Distribution of Crimes by State",
+       x = "Number of Crimes",
+       y = "Count")
+```
+
+### **Histogram for Overall Crime Rate by Category**
+
+```{r}
+p1 <- ggplot(crime_df_transformed, aes(x = crimes, fill = category)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  facet_wrap(~category) +
+  theme_minimal() +
+  labs(title = "Distribution of Crime Rates by Category",
+       x = "Crimes",
+       y = "Count")
+
+p1
 ```
 
 ```{r}
-ggplot(crime_data_clean, aes(x = category, y = crimes, fill = category)) +
+ggplot(crime_df_transformed, aes(x = category, y = crimes, fill = category)) +
   geom_boxplot() +
   labs(title = "Distribution of Crime Cases by Category",
        x = "Category",
@@ -242,18 +690,36 @@ ggplot(crime_data_clean, aes(x = category, y = crimes, fill = category)) +
   scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
 ```
 
-### **Histogram for Crime Rate by Type**
+### **Histogram for Crime Rate per Capita by Category**
 
 ```{r}
-ggplot(crime_data_clean, aes(x = crimes)) +
-  geom_histogram(fill = "steelblue", color = "black", bins = 30) +
-  labs(title = "Distribution of All Crimes",
-       x = "Number of Cases",
-       y = "Frequency") +
+p1 <- ggplot(crime_df_transformed, aes(x = crimes_pc, fill = category)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  facet_wrap(~category) +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title = "Distribution of Crime Rates per Capita by Category",
+       x = "Crimes per Capita",
+       y = "Count")
 
-ggplot(crime_data_clean, aes(x = crimes, fill = type)) +
+p1
+```
+
+```{r}
+ggplot(crime_df_transformed, aes(x = category, y = crimes_pc, fill = category)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Crime Cases by Category",
+       x = "Category",
+       y = "Number of Cases") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none") +
+  scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
+```
+
+### Histogram for Overall Crime Rate by Type
+
+```{r}
+ggplot(crime_df_transformed, aes(x = crimes, fill = type)) +
   geom_histogram(color = "black", bins = 30, position = "identity", alpha = 0.5) +
   labs(title = "Distribution of Cases by Crime Type",
        x = "Number of Cases",
@@ -266,8 +732,8 @@ ggplot(crime_data_clean, aes(x = crimes, fill = type)) +
 ```
 
 ```{r}
-for(crime in unique(crime_data_clean$type)) {
-  crime_data <- subset(crime_district_malaysia_sf, type == crime)
+for(crime in unique(crime_df_transformed$type)) {
+  crime_data <- subset(crime_df_transformed, type == crime)
   
   print(
     ggplot(crime_data, aes(x = crimes)) +
@@ -281,10 +747,83 @@ for(crime in unique(crime_data_clean$type)) {
 }
 ```
 
-## **Summary**
+### **Histogram for Crime Rate per Capita by Type**
 
 ```{r}
-category_summary <- crime_data_clean %>%
+state_summary <- crime_df_transformed %>%
+  group_by(state, type) %>%
+  summarise(
+    total_crimes = sum(crimes, na.rm = TRUE),
+    mean_crimes_pc = mean(crimes_pc, na.rm = TRUE),
+    total_population = sum(population, na.rm = TRUE)
+  ) %>%
+  ungroup()
+```
+
+```{r}
+ggplot(state_summary, aes(x = state, y = mean_crimes_pc, fill = type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Mean Crime Rates by State and Type",
+       x = "State",
+       y = "Mean Crimes per Capita") +
+  scale_fill_viridis_d()
+```
+
+```{r}
+district_summary <- crime_df_transformed %>%
+  group_by(state, district, type) %>%
+  summarise(
+    total_crimes = sum(crimes, na.rm = TRUE),
+    mean_crimes_pc = mean(crimes_pc, na.rm = TRUE)
+  ) %>%
+  ungroup()
+```
+
+```{r}
+ggplot(district_summary, aes(x = state, y = mean_crimes_pc)) +
+  geom_boxplot(aes(fill = type)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "District-level Crime Rate Variation by State",
+       x = "State",
+       y = "Mean Crimes per Capita") +
+  facet_wrap(~type, scales = "free_y")
+```
+
+```{r}
+ggplot(crime_df_transformed, aes(x = crimes_pc, fill = type)) +
+  geom_histogram(bins = 30, alpha = 0.7) +
+  facet_wrap(~type, scales = "free") +
+  theme_minimal() +
+  labs(title = "Distribution of Crime Rates by Type",
+       x = "Crimes per Capita",
+       y = "Frequency") +
+  theme(legend.position = "none")
+```
+
+## **Summary**
+
+### **Summary for Overall Crime Rate**
+
+```{r}
+summary_stats <- crime_df_transformed %>%
+  group_by(type) %>%
+  summarise(
+    total_crimes = sum(crimes, na.rm = TRUE),
+    mean_crimes_pc = mean(crimes_pc, na.rm = TRUE),
+    median_crimes_pc = median(crimes_pc, na.rm = TRUE),
+    sd_crimes_pc = sd(crimes_pc, na.rm = TRUE)
+  )
+
+summary_stats
+```
+
+### **Summary for Overall Crime Rate by Category**
+
+```{r}
+category_summary <- crime_df_transformed %>%
   group_by(category) %>%
   summarise(
     Count = n(),
@@ -299,12 +838,14 @@ category_summary <- crime_data_clean %>%
     Percentage_of_Total = (Total_Cases / sum(Total_Cases)) * 100
   )
 
-print("Summary Statistics by Category:")
-print(category_summary)
+category_summary
+
 ```
 
+### Detailed Summary by Category and Type
+
 ```{r}
-detailed_summary <- crime_data_clean %>%
+detailed_summary <- crime_df_transformed %>%
   group_by(category, type) %>%
   summarise(
     Count = n(),
@@ -314,16 +855,32 @@ detailed_summary <- crime_data_clean %>%
   ) %>%
   arrange(category, desc(Total_Cases))
 
-print("\nDetailed Summary by Category and Type:")
-print(detailed_summary)
+detailed_summary
 ```
 
+### Percentage Distribution of Types within Categories
+
 ```{r}
-type_distribution <- crime_data_clean %>%
+type_distribution <- crime_df_transformed %>%
   group_by(category, type) %>%
   summarise(count = n()) %>%
   mutate(percentage = count / sum(count) * 100)
+type_distribution
+```
 
-print("\nPercentage Distribution of Types within Categories:")
-print(type_distribution)
+### **Summary for Crime Rate per Capita by State**
+
+```{r}
+# State-specific analysis
+for(state_name in unique(crime_df_transformed$state)) {
+  cat("\nSummary for", state_name, ":\n")
+  state_stats <- crime_df_transformed %>%
+    filter(state == state_name) %>%
+    group_by(type) %>%
+    summarise(
+      total_crimes = sum(crimes, na.rm = TRUE),
+      mean_crimes_pc = mean(crimes_pc, na.rm = TRUE)
+    )
+  print(state_stats)
+}
 ```
