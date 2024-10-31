@@ -404,9 +404,66 @@ crime_df_transformed <- crime_df_mys %>%
 unique(crime_df_transformed$type)
 ```
 
+```{r}
+create_overall_crime_type_pie <- function(data) {
+  type_crimes <- data %>%
+    group_by(type) %>%
+    summarise(total_crimes = sum(crimes)) %>%
+    arrange(desc(total_crimes))
+  
+  p <- ggplot(type_crimes, aes(x = "", y = total_crimes, fill = type)) +
+    geom_bar(width = 1, stat = "identity") +
+    coord_polar("y", start = 0) +
+    theme_minimal() +
+    labs(
+      title = "Overall Crime Type Composition",
+      fill = "Crime Type",
+      x = NULL,
+      y = NULL
+    ) +
+    theme(
+      axis.text = element_blank(),
+      axis.ticks = element_blank(),
+      panel.grid = element_blank(),
+      plot.title = element_text(hjust = 0.5)
+    ) +
+    geom_text(
+      aes(label = paste(type, "\n", round(total_crimes, 0), 
+                        " (", round(total_crimes/sum(total_crimes)*100, 1), "%)")),
+      position = position_stack(vjust = 0.5)
+    )
+  
+  return(p)
+}
+
+overall_crime_pie <- create_overall_crime_type_pie(crime_df_transformed)
+
+overall_crime_pie
+```
+
+```{r}
+create_type_summary <- function(data) {
+  type_summary <- data %>%
+    group_by(type) %>%
+    summarise(
+      total_crimes = sum(crimes),
+      mean_crimes = mean(crimes),
+      median_crimes = median(crimes),
+      crime_percentage = total_crimes / sum(data$crimes) * 100
+    ) %>%
+    arrange(desc(total_crimes))
+  
+  return(type_summary)
+}
+
+type_summary <- create_type_summary(crime_df_transformed)
+
+type_summary
+```
+
 ## **Choropleth**
 
-### **Choropleth Map for Overall Crime Rate by State**
+### Choropleth Map for Overall Crime Rate by State
 
 ```{r}
 tm_shape(crime_df_transformed) +
@@ -452,7 +509,7 @@ for (state in unique(crime_df_transformed$state)) {
 tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
 ```
 
-### **Choropleth Map for Crime Rate per Capita by State**
+### Choropleth Map for Crime Rate per Capita by State
 
 ```{r}
 tm_shape(crime_df_transformed) +
@@ -481,7 +538,7 @@ for (state in unique(crime_df_transformed$state)) {
 tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
 ```
 
-### **Choropleth Map for Overall Crime Rate by Category**
+### Choropleth Map for Overall Crime Rate by Category
 
 ```{r}
 table(crime_df_transformed$category)
@@ -524,7 +581,7 @@ tm_shape(property_data) +
   tm_grid(alpha =0.2)
 ```
 
-### **Choropleth Map for Crime Rate per Capita by Category**
+### Choropleth Map for Crime Rate per Capita by Category
 
 ```{r}
 tm_shape(assault_data) +
@@ -558,7 +615,7 @@ tm_shape(property_data) +
   tm_grid(alpha =0.2)
 ```
 
-### **Choropleth Map for Overall Crime Rate by Type**
+### Choropleth Map for Overall Crime Rate by Type
 
 ```{r}
 create_crime_map <- function(data, crime_type) {
@@ -589,7 +646,7 @@ for(type in unique_types) {
 tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
 ```
 
-### **Choropleth Map for Crime Rate per Capita by Type**
+### Choropleth Map for Crime Rate per Capita by Type
 
 ```{r}
 table(crime_df_mys$type)
@@ -664,7 +721,7 @@ ggplot(crime_df_transformed, aes(x = crimes_pc, fill = state)) +
        y = "Count")
 ```
 
-### **Histogram for Overall Crime Rate by Category**
+### Histogram for Overall Crime Rate by Category
 
 ```{r}
 p1 <- ggplot(crime_df_transformed, aes(x = crimes, fill = category)) +
@@ -747,7 +804,7 @@ for(crime in unique(crime_df_transformed$type)) {
 }
 ```
 
-### **Histogram for Crime Rate per Capita by Type**
+### Histogram for Crime Rate per Capita by Type
 
 ```{r}
 state_summary <- crime_df_transformed %>%
@@ -805,7 +862,7 @@ ggplot(crime_df_transformed, aes(x = crimes_pc, fill = type)) +
 
 ## **Summary**
 
-### **Summary for Overall Crime Rate**
+### Summary for Overall Crime Rate
 
 ```{r}
 summary_stats <- crime_df_transformed %>%
@@ -820,7 +877,7 @@ summary_stats <- crime_df_transformed %>%
 summary_stats
 ```
 
-### **Summary for Overall Crime Rate by Category**
+### Summary for Overall Crime Rate by Category
 
 ```{r}
 category_summary <- crime_df_transformed %>%
@@ -868,7 +925,7 @@ type_distribution <- crime_df_transformed %>%
 type_distribution
 ```
 
-### **Summary for Crime Rate per Capita by State**
+### Summary for Crime Rate per Capita by State
 
 ```{r}
 # State-specific analysis
