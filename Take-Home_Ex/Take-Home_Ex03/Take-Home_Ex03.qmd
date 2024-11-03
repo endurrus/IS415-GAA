@@ -14,11 +14,31 @@ format:
 
 # 1. Introduction
 
-## 1.1 Responsibility
+## 1.1 Objectives
 
-## 1.2 Motivation
+This study explores the spatial distribution and composition of crime across the states and districts of Malaysia. By leveraging a comprehensive dataset of crime incidents, we will conduct an extensive Exploratory Data Analysis (EDA) to uncover key insights and trends.
 
-## 1.3 Objectives
+The exercise will focus only on one page consisting of all portions that I am responsible for. This includes:
+
+1.  **State-Level Analysis**: We will create a choropleth map to illustrate the distribution of crime rates across the states of West Malaysia. This will help identify high-crime and low-crime regions at the state level.
+
+2.  **District-Level Analysis**: Drilling down further, we will generate district-level choropleth maps for selected states. This will reveal the within-state variations in crime patterns and pinpoint local hotspots and coldspots.
+
+3.  **Category-Level Analysis**: We will examine the distribution of crime rates by category (e.g., assault, property) using histograms. This will provide insights into the composition and relative prevalence of different crime types.
+
+4.  **Type-Level Analysis**: Complementing the category-level view, we will create pie charts to showcase the overall and district-specific breakdown of crime types. This will help understand the composition of criminal activities in the region.
+
+By conducting this comprehensive EDA, we aim to uncover valuable spatial and categorical insights that can inform evidence-based policymaking, resource allocation, and targeted interventions to enhance public safety in Malaysia.
+
+## 1.2 UI
+
+The results would be displayed in a map using Shiny App, and the initial proposed layout is as followed:
+
+![](images/clipboard-812728989.png)
+
+To insert the user input specifications and controls, Shiny has functions like sliderInput(), selectInput(), textInput(), numericInput(), checkboxInput(), and checkboxGroupInput().
+
+![](images/clipboard-3062881648.png)
 
 # 2. Packages and Data
 
@@ -391,7 +411,7 @@ choro <- tm_shape(crime_df_mys_grp) +
 choro
 ```
 
-# **EDA**
+# 3. EDA
 
 ```{r}
 crime_df_transformed <- crime_df_mys %>%
@@ -461,9 +481,9 @@ type_summary <- create_type_summary(crime_df_transformed)
 type_summary
 ```
 
-## **Choropleth**
+## 3.1 Choropleth 
 
-### Choropleth Map for Overall Crime Rate by State
+### 3.1.1 Choropleth Map for Overall Crime Rate by State
 
 ```{r}
 tm_shape(crime_df_transformed) +
@@ -509,7 +529,7 @@ for (state in unique(crime_df_transformed$state)) {
 tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
 ```
 
-### Choropleth Map for Crime Rate per Capita by State
+### 3.1.2 Choropleth Map for Crime Rate per Capita by State
 
 ```{r}
 tm_shape(crime_df_transformed) +
@@ -538,7 +558,7 @@ for (state in unique(crime_df_transformed$state)) {
 tmap_arrange(plotlist = plot_list, ncol = 3, nrow = 4)
 ```
 
-### Choropleth Map for Overall Crime Rate by Category
+### 3.1.3 Choropleth Map for Overall Crime Rate by Category
 
 ```{r}
 table(crime_df_transformed$category)
@@ -581,7 +601,7 @@ tm_shape(property_data) +
   tm_grid(alpha =0.2)
 ```
 
-### Choropleth Map for Crime Rate per Capita by Category
+### 3.1.4 Choropleth Map for Crime Rate per Capita by Category
 
 ```{r}
 tm_shape(assault_data) +
@@ -615,7 +635,7 @@ tm_shape(property_data) +
   tm_grid(alpha =0.2)
 ```
 
-### Choropleth Map for Overall Crime Rate by Type
+### 3.1.5 Choropleth Map for Overall Crime Rate by Type
 
 ```{r}
 create_crime_map <- function(data, crime_type) {
@@ -646,7 +666,7 @@ for(type in unique_types) {
 tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
 ```
 
-### Choropleth Map for Crime Rate per Capita by Type
+### 3.1.6 Choropleth Map for Crime Rate per Capita by Type
 
 ```{r}
 table(crime_df_mys$type)
@@ -681,9 +701,9 @@ for(type in unique_types) {
 tmap_arrange(plotlist = plot_list, ncol = 2, nrow = 3)
 ```
 
-## **Histogram**
+## 3.2 Histogram
 
-### Histogram for Overall Crime Rate
+### 3.1.1 Histogram for Overall Crime Rate
 
 ```{r}
 ggplot(crime_df_transformed, aes(x = crimes)) +
@@ -695,7 +715,7 @@ ggplot(crime_df_transformed, aes(x = crimes)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-### Histogram for Overall Crime Rate by State
+### 3.1.2 Histogram for Overall Crime Rate by State
 
 ```{r}
 ggplot(crime_df_transformed, aes(x = crimes, fill = state)) +
@@ -708,7 +728,7 @@ ggplot(crime_df_transformed, aes(x = crimes, fill = state)) +
        y = "Count")
 ```
 
-### Histogram for Crime Rate per Capita by State
+### 3.1.3 Histogram for Crime Rate per Capita by State
 
 ```{r}
 ggplot(crime_df_transformed, aes(x = crimes_pc, fill = state)) +
@@ -721,7 +741,7 @@ ggplot(crime_df_transformed, aes(x = crimes_pc, fill = state)) +
        y = "Count")
 ```
 
-### Histogram for Overall Crime Rate by Category
+### 3.1.4 Histogram for Overall Crime Rate by Category
 
 ```{r}
 p1 <- ggplot(crime_df_transformed, aes(x = crimes, fill = category)) +
@@ -747,7 +767,7 @@ ggplot(crime_df_transformed, aes(x = category, y = crimes, fill = category)) +
   scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
 ```
 
-### **Histogram for Crime Rate per Capita by Category**
+### 3.1.5 Histogram for Crime Rate per Capita by Category
 
 ```{r}
 p1 <- ggplot(crime_df_transformed, aes(x = crimes_pc, fill = category)) +
@@ -773,7 +793,7 @@ ggplot(crime_df_transformed, aes(x = category, y = crimes_pc, fill = category)) 
   scale_fill_manual(values = c("assault" = "#FF9999", "property" = "#66B2FF"))
 ```
 
-### Histogram for Overall Crime Rate by Type
+### 3.1.6 Histogram for Overall Crime Rate by Type
 
 ```{r}
 ggplot(crime_df_transformed, aes(x = crimes, fill = type)) +
@@ -804,7 +824,7 @@ for(crime in unique(crime_df_transformed$type)) {
 }
 ```
 
-### Histogram for Crime Rate per Capita by Type
+### 3.1.7 Histogram for Crime Rate per Capita by Type
 
 ```{r}
 state_summary <- crime_df_transformed %>%
@@ -860,9 +880,9 @@ ggplot(crime_df_transformed, aes(x = crimes_pc, fill = type)) +
   theme(legend.position = "none")
 ```
 
-## **Summary**
+## 3.3 Summary
 
-### Summary for Overall Crime Rate
+### 3.3.1 Summary for Overall Crime Rate
 
 ```{r}
 summary_stats <- crime_df_transformed %>%
@@ -877,7 +897,7 @@ summary_stats <- crime_df_transformed %>%
 summary_stats
 ```
 
-### Summary for Overall Crime Rate by Category
+### 3.3.2 Summary for Overall Crime Rate by Category
 
 ```{r}
 category_summary <- crime_df_transformed %>%
@@ -899,7 +919,7 @@ category_summary
 
 ```
 
-### Detailed Summary by Category and Type
+### 3.3.3 Detailed Summary by Category and Type
 
 ```{r}
 detailed_summary <- crime_df_transformed %>%
@@ -915,7 +935,7 @@ detailed_summary <- crime_df_transformed %>%
 detailed_summary
 ```
 
-### Percentage Distribution of Types within Categories
+### 3.3.4 Percentage Distribution of Types within Categories
 
 ```{r}
 type_distribution <- crime_df_transformed %>%
@@ -925,7 +945,7 @@ type_distribution <- crime_df_transformed %>%
 type_distribution
 ```
 
-### Summary for Crime Rate per Capita by State
+### 3.3.5 Summary for Crime Rate per Capita by State
 
 ```{r}
 # State-specific analysis

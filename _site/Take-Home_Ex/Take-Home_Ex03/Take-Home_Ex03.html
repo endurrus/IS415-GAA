@@ -244,9 +244,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1. Introduction</a>
   <ul class="collapse">
-  <li><a href="#responsibility" id="toc-responsibility" class="nav-link" data-scroll-target="#responsibility">1.1 Responsibility</a></li>
-  <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">1.2 Motivation</a></li>
-  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">1.3 Objectives</a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">1.1 Objectives</a></li>
+  <li><a href="#ui" id="toc-ui" class="nav-link" data-scroll-target="#ui">1.2 UI</a></li>
   </ul></li>
   <li><a href="#packages-and-data" id="toc-packages-and-data" class="nav-link" data-scroll-target="#packages-and-data">2. Packages and Data</a>
   <ul class="collapse">
@@ -263,34 +262,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#visualizing-the-distribution-of-crime" id="toc-visualizing-the-distribution-of-crime" class="nav-link" data-scroll-target="#visualizing-the-distribution-of-crime">2.3.7 Visualizing the distribution of crime</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda"><strong>EDA</strong></a>
+  <li><a href="#eda" id="toc-eda" class="nav-link" data-scroll-target="#eda">3. EDA</a>
   <ul class="collapse">
-  <li><a href="#choropleth" id="toc-choropleth" class="nav-link" data-scroll-target="#choropleth"><strong>Choropleth</strong></a>
+  <li><a href="#choropleth" id="toc-choropleth" class="nav-link" data-scroll-target="#choropleth">3.1 Choropleth</a>
   <ul class="collapse">
-  <li><a href="#choropleth-map-for-overall-crime-rate-by-state" id="toc-choropleth-map-for-overall-crime-rate-by-state" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-state">Choropleth Map for Overall Crime Rate by State</a></li>
-  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-state" id="toc-choropleth-map-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-state">Choropleth Map for Crime Rate per Capita by State</a></li>
-  <li><a href="#choropleth-map-for-overall-crime-rate-by-category" id="toc-choropleth-map-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-category">Choropleth Map for Overall Crime Rate by Category</a></li>
-  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-category" id="toc-choropleth-map-for-crime-rate-per-capita-by-category" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-category">Choropleth Map for Crime Rate per Capita by Category</a></li>
-  <li><a href="#choropleth-map-for-overall-crime-rate-by-type" id="toc-choropleth-map-for-overall-crime-rate-by-type" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-type">Choropleth Map for Overall Crime Rate by Type</a></li>
-  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-type" id="toc-choropleth-map-for-crime-rate-per-capita-by-type" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-type">Choropleth Map for Crime Rate per Capita by Type</a></li>
+  <li><a href="#choropleth-map-for-overall-crime-rate-by-state" id="toc-choropleth-map-for-overall-crime-rate-by-state" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-state">3.1.1 Choropleth Map for Overall Crime Rate by State</a></li>
+  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-state" id="toc-choropleth-map-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-state">3.1.2 Choropleth Map for Crime Rate per Capita by State</a></li>
+  <li><a href="#choropleth-map-for-overall-crime-rate-by-category" id="toc-choropleth-map-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-category">3.1.3 Choropleth Map for Overall Crime Rate by Category</a></li>
+  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-category" id="toc-choropleth-map-for-crime-rate-per-capita-by-category" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-category">3.1.4 Choropleth Map for Crime Rate per Capita by Category</a></li>
+  <li><a href="#choropleth-map-for-overall-crime-rate-by-type" id="toc-choropleth-map-for-overall-crime-rate-by-type" class="nav-link" data-scroll-target="#choropleth-map-for-overall-crime-rate-by-type">3.1.5 Choropleth Map for Overall Crime Rate by Type</a></li>
+  <li><a href="#choropleth-map-for-crime-rate-per-capita-by-type" id="toc-choropleth-map-for-crime-rate-per-capita-by-type" class="nav-link" data-scroll-target="#choropleth-map-for-crime-rate-per-capita-by-type">3.1.6 Choropleth Map for Crime Rate per Capita by Type</a></li>
   </ul></li>
-  <li><a href="#histogram" id="toc-histogram" class="nav-link" data-scroll-target="#histogram"><strong>Histogram</strong></a>
+  <li><a href="#histogram" id="toc-histogram" class="nav-link" data-scroll-target="#histogram">3.2 Histogram</a>
   <ul class="collapse">
-  <li><a href="#histogram-for-overall-crime-rate" id="toc-histogram-for-overall-crime-rate" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate">Histogram for Overall Crime Rate</a></li>
-  <li><a href="#histogram-for-overall-crime-rate-by-state" id="toc-histogram-for-overall-crime-rate-by-state" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-state">Histogram for Overall Crime Rate by State</a></li>
-  <li><a href="#histogram-for-crime-rate-per-capita-by-state" id="toc-histogram-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-state">Histogram for Crime Rate per Capita by State</a></li>
-  <li><a href="#histogram-for-overall-crime-rate-by-category" id="toc-histogram-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-category">Histogram for Overall Crime Rate by Category</a></li>
-  <li><a href="#histogram-for-crime-rate-per-capita-by-category" id="toc-histogram-for-crime-rate-per-capita-by-category" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-category"><strong>Histogram for Crime Rate per Capita by Category</strong></a></li>
-  <li><a href="#histogram-for-overall-crime-rate-by-type" id="toc-histogram-for-overall-crime-rate-by-type" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-type">Histogram for Overall Crime Rate by Type</a></li>
-  <li><a href="#histogram-for-crime-rate-per-capita-by-type" id="toc-histogram-for-crime-rate-per-capita-by-type" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-type">Histogram for Crime Rate per Capita by Type</a></li>
+  <li><a href="#histogram-for-overall-crime-rate" id="toc-histogram-for-overall-crime-rate" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate">3.1.1 Histogram for Overall Crime Rate</a></li>
+  <li><a href="#histogram-for-overall-crime-rate-by-state" id="toc-histogram-for-overall-crime-rate-by-state" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-state">3.1.2 Histogram for Overall Crime Rate by State</a></li>
+  <li><a href="#histogram-for-crime-rate-per-capita-by-state" id="toc-histogram-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-state">3.1.3 Histogram for Crime Rate per Capita by State</a></li>
+  <li><a href="#histogram-for-overall-crime-rate-by-category" id="toc-histogram-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-category">3.1.4 Histogram for Overall Crime Rate by Category</a></li>
+  <li><a href="#histogram-for-crime-rate-per-capita-by-category" id="toc-histogram-for-crime-rate-per-capita-by-category" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-category">3.1.5 Histogram for Crime Rate per Capita by Category</a></li>
+  <li><a href="#histogram-for-overall-crime-rate-by-type" id="toc-histogram-for-overall-crime-rate-by-type" class="nav-link" data-scroll-target="#histogram-for-overall-crime-rate-by-type">3.1.6 Histogram for Overall Crime Rate by Type</a></li>
+  <li><a href="#histogram-for-crime-rate-per-capita-by-type" id="toc-histogram-for-crime-rate-per-capita-by-type" class="nav-link" data-scroll-target="#histogram-for-crime-rate-per-capita-by-type">3.1.7 Histogram for Crime Rate per Capita by Type</a></li>
   </ul></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><strong>Summary</strong></a>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">3.3 Summary</a>
   <ul class="collapse">
-  <li><a href="#summary-for-overall-crime-rate" id="toc-summary-for-overall-crime-rate" class="nav-link" data-scroll-target="#summary-for-overall-crime-rate">Summary for Overall Crime Rate</a></li>
-  <li><a href="#summary-for-overall-crime-rate-by-category" id="toc-summary-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#summary-for-overall-crime-rate-by-category">Summary for Overall Crime Rate by Category</a></li>
-  <li><a href="#detailed-summary-by-category-and-type" id="toc-detailed-summary-by-category-and-type" class="nav-link" data-scroll-target="#detailed-summary-by-category-and-type">Detailed Summary by Category and Type</a></li>
-  <li><a href="#percentage-distribution-of-types-within-categories" id="toc-percentage-distribution-of-types-within-categories" class="nav-link" data-scroll-target="#percentage-distribution-of-types-within-categories">Percentage Distribution of Types within Categories</a></li>
-  <li><a href="#summary-for-crime-rate-per-capita-by-state" id="toc-summary-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#summary-for-crime-rate-per-capita-by-state">Summary for Crime Rate per Capita by State</a></li>
+  <li><a href="#summary-for-overall-crime-rate" id="toc-summary-for-overall-crime-rate" class="nav-link" data-scroll-target="#summary-for-overall-crime-rate">3.3.1 Summary for Overall Crime Rate</a></li>
+  <li><a href="#summary-for-overall-crime-rate-by-category" id="toc-summary-for-overall-crime-rate-by-category" class="nav-link" data-scroll-target="#summary-for-overall-crime-rate-by-category">3.3.2 Summary for Overall Crime Rate by Category</a></li>
+  <li><a href="#detailed-summary-by-category-and-type" id="toc-detailed-summary-by-category-and-type" class="nav-link" data-scroll-target="#detailed-summary-by-category-and-type">3.3.3 Detailed Summary by Category and Type</a></li>
+  <li><a href="#percentage-distribution-of-types-within-categories" id="toc-percentage-distribution-of-types-within-categories" class="nav-link" data-scroll-target="#percentage-distribution-of-types-within-categories">3.3.4 Percentage Distribution of Types within Categories</a></li>
+  <li><a href="#summary-for-crime-rate-per-capita-by-state" id="toc-summary-for-crime-rate-per-capita-by-state" class="nav-link" data-scroll-target="#summary-for-crime-rate-per-capita-by-state">3.3.5 Summary for Crime Rate per Capita by State</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -319,7 +318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 1, 2024</p>
+      <p class="date-modified">November 3, 2024</p>
     </div>
   </div>
     
@@ -332,14 +331,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level1">
 <h1>1. Introduction</h1>
-<section id="responsibility" class="level2">
-<h2 class="anchored" data-anchor-id="responsibility">1.1 Responsibility</h2>
-</section>
-<section id="motivation" class="level2">
-<h2 class="anchored" data-anchor-id="motivation">1.2 Motivation</h2>
-</section>
 <section id="objectives" class="level2">
-<h2 class="anchored" data-anchor-id="objectives">1.3 Objectives</h2>
+<h2 class="anchored" data-anchor-id="objectives">1.1 Objectives</h2>
+<p>This study explores the spatial distribution and composition of crime across the states and districts of Malaysia. By leveraging a comprehensive dataset of crime incidents, we will conduct an extensive Exploratory Data Analysis (EDA) to uncover key insights and trends.</p>
+<p>The exercise will focus only on one page consisting of all portions that I am responsible for. This includes:</p>
+<ol type="1">
+<li><p><strong>State-Level Analysis</strong>: We will create a choropleth map to illustrate the distribution of crime rates across the states of West Malaysia. This will help identify high-crime and low-crime regions at the state level.</p></li>
+<li><p><strong>District-Level Analysis</strong>: Drilling down further, we will generate district-level choropleth maps for selected states. This will reveal the within-state variations in crime patterns and pinpoint local hotspots and coldspots.</p></li>
+<li><p><strong>Category-Level Analysis</strong>: We will examine the distribution of crime rates by category (e.g., assault, property) using histograms. This will provide insights into the composition and relative prevalence of different crime types.</p></li>
+<li><p><strong>Type-Level Analysis</strong>: Complementing the category-level view, we will create pie charts to showcase the overall and district-specific breakdown of crime types. This will help understand the composition of criminal activities in the region.</p></li>
+</ol>
+<p>By conducting this comprehensive EDA, we aim to uncover valuable spatial and categorical insights that can inform evidence-based policymaking, resource allocation, and targeted interventions to enhance public safety in Malaysia.</p>
+</section>
+<section id="ui" class="level2">
+<h2 class="anchored" data-anchor-id="ui">1.2 UI</h2>
+<p>The results would be displayed in a map using Shiny App, and the initial proposed layout is as followed:</p>
+<p><img src="images/clipboard-812728989.png" class="img-fluid"></p>
+<p>To insert the user input specifications and controls, Shiny has functions like sliderInput(), selectInput(), textInput(), numericInput(), checkboxInput(), and checkboxGroupInput().</p>
+<p><img src="images/clipboard-3062881648.png" class="img-fluid"></p>
 </section>
 </section>
 <section id="packages-and-data" class="level1">
@@ -1062,7 +1071,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </section>
 </section>
 <section id="eda" class="level1">
-<h1><strong>EDA</strong></h1>
+<h1>3. EDA</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>crime_df_transformed <span class="ot">&lt;-</span> crime_df_mys <span class="sc">%&gt;%</span></span>
 <span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="fu">case_when</span>(</span>
@@ -1157,9 +1166,9 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </div>
 <section id="choropleth" class="level2">
-<h2 class="anchored" data-anchor-id="choropleth"><strong>Choropleth</strong></h2>
+<h2 class="anchored" data-anchor-id="choropleth">3.1 Choropleth</h2>
 <section id="choropleth-map-for-overall-crime-rate-by-state" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-state">Choropleth Map for Overall Crime Rate by State</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-state">3.1.1 Choropleth Map for Overall Crime Rate by State</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(crime_df_transformed) <span class="sc">+</span></span>
 <span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"crimes"</span>, </span>
@@ -1218,7 +1227,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="choropleth-map-for-crime-rate-per-capita-by-state" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-state">Choropleth Map for Crime Rate per Capita by State</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-state">3.1.2 Choropleth Map for Crime Rate per Capita by State</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(crime_df_transformed) <span class="sc">+</span></span>
 <span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"crimes_pc"</span>, </span>
@@ -1260,7 +1269,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="choropleth-map-for-overall-crime-rate-by-category" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-category">Choropleth Map for Overall Crime Rate by Category</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-category">3.1.3 Choropleth Map for Overall Crime Rate by Category</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(crime_df_transformed<span class="sc">$</span>category)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1319,7 +1328,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="choropleth-map-for-crime-rate-per-capita-by-category" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-category">Choropleth Map for Crime Rate per Capita by Category</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-category">3.1.4 Choropleth Map for Crime Rate per Capita by Category</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(assault_data) <span class="sc">+</span></span>
 <span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"crimes_pc"</span>, </span>
@@ -1366,7 +1375,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="choropleth-map-for-overall-crime-rate-by-type" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-type">Choropleth Map for Overall Crime Rate by Type</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-overall-crime-rate-by-type">3.1.5 Choropleth Map for Overall Crime Rate by Type</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>create_crime_map <span class="ot">&lt;-</span> <span class="cf">function</span>(data, crime_type) {</span>
 <span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>  filtered_data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(type <span class="sc">==</span> crime_type)</span>
@@ -1404,7 +1413,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="choropleth-map-for-crime-rate-per-capita-by-type" class="level3">
-<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-type">Choropleth Map for Crime Rate per Capita by Type</h3>
+<h3 class="anchored" data-anchor-id="choropleth-map-for-crime-rate-per-capita-by-type">3.1.6 Choropleth Map for Crime Rate per Capita by Type</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(crime_df_mys<span class="sc">$</span>type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1457,9 +1466,9 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </section>
 </section>
 <section id="histogram" class="level2">
-<h2 class="anchored" data-anchor-id="histogram"><strong>Histogram</strong></h2>
+<h2 class="anchored" data-anchor-id="histogram">3.2 Histogram</h2>
 <section id="histogram-for-overall-crime-rate" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate">Histogram for Overall Crime Rate</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate">3.1.1 Histogram for Overall Crime Rate</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes)) <span class="sc">+</span></span>
 <span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span></span>
@@ -1478,7 +1487,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-overall-crime-rate-by-state" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-state">Histogram for Overall Crime Rate by State</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-state">3.1.2 Histogram for Overall Crime Rate by State</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes, <span class="at">fill =</span> state)) <span class="sc">+</span></span>
 <span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
@@ -1498,7 +1507,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-crime-rate-per-capita-by-state" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-state">Histogram for Crime Rate per Capita by State</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-state">3.1.3 Histogram for Crime Rate per Capita by State</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes_pc, <span class="at">fill =</span> state)) <span class="sc">+</span></span>
 <span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
@@ -1518,7 +1527,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-overall-crime-rate-by-category" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-category">Histogram for Overall Crime Rate by Category</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-category">3.1.4 Histogram for Overall Crime Rate by Category</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes, <span class="at">fill =</span> category)) <span class="sc">+</span></span>
 <span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
@@ -1557,7 +1566,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-crime-rate-per-capita-by-category" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-category"><strong>Histogram for Crime Rate per Capita by Category</strong></h3>
+<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-category">3.1.5 Histogram for Crime Rate per Capita by Category</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes_pc, <span class="at">fill =</span> category)) <span class="sc">+</span></span>
 <span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
@@ -1596,7 +1605,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-overall-crime-rate-by-type" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-type">Histogram for Overall Crime Rate by Type</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-overall-crime-rate-by-type">3.1.6 Histogram for Overall Crime Rate by Type</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crime_df_transformed, <span class="fu">aes</span>(<span class="at">x =</span> crimes, <span class="at">fill =</span> type)) <span class="sc">+</span></span>
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">bins =</span> <span class="dv">30</span>, <span class="at">position =</span> <span class="st">"identity"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
@@ -1675,7 +1684,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="histogram-for-crime-rate-per-capita-by-type" class="level3">
-<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-type">Histogram for Crime Rate per Capita by Type</h3>
+<h3 class="anchored" data-anchor-id="histogram-for-crime-rate-per-capita-by-type">3.1.7 Histogram for Crime Rate per Capita by Type</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>state_summary <span class="ot">&lt;-</span> crime_df_transformed <span class="sc">%&gt;%</span></span>
 <span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(state, type) <span class="sc">%&gt;%</span></span>
@@ -1757,9 +1766,9 @@ the `.groups` argument.</code></pre>
 </section>
 </section>
 <section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary"><strong>Summary</strong></h2>
+<h2 class="anchored" data-anchor-id="summary">3.3 Summary</h2>
 <section id="summary-for-overall-crime-rate" class="level3">
-<h3 class="anchored" data-anchor-id="summary-for-overall-crime-rate">Summary for Overall Crime Rate</h3>
+<h3 class="anchored" data-anchor-id="summary-for-overall-crime-rate">3.3.1 Summary for Overall Crime Rate</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>summary_stats <span class="ot">&lt;-</span> crime_df_transformed <span class="sc">%&gt;%</span></span>
 <span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type) <span class="sc">%&gt;%</span></span>
@@ -1791,7 +1800,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="summary-for-overall-crime-rate-by-category" class="level3">
-<h3 class="anchored" data-anchor-id="summary-for-overall-crime-rate-by-category">Summary for Overall Crime Rate by Category</h3>
+<h3 class="anchored" data-anchor-id="summary-for-overall-crime-rate-by-category">3.3.2 Summary for Overall Crime Rate by Category</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>category_summary <span class="ot">&lt;-</span> crime_df_transformed <span class="sc">%&gt;%</span></span>
 <span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(category) <span class="sc">%&gt;%</span></span>
@@ -1826,7 +1835,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="detailed-summary-by-category-and-type" class="level3">
-<h3 class="anchored" data-anchor-id="detailed-summary-by-category-and-type">Detailed Summary by Category and Type</h3>
+<h3 class="anchored" data-anchor-id="detailed-summary-by-category-and-type">3.3.3 Detailed Summary by Category and Type</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>detailed_summary <span class="ot">&lt;-</span> crime_df_transformed <span class="sc">%&gt;%</span></span>
 <span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(category, type) <span class="sc">%&gt;%</span></span>
@@ -1863,7 +1872,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="percentage-distribution-of-types-within-categories" class="level3">
-<h3 class="anchored" data-anchor-id="percentage-distribution-of-types-within-categories">Percentage Distribution of Types within Categories</h3>
+<h3 class="anchored" data-anchor-id="percentage-distribution-of-types-within-categories">3.3.4 Percentage Distribution of Types within Categories</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>type_distribution <span class="ot">&lt;-</span> crime_df_transformed <span class="sc">%&gt;%</span></span>
 <span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(category, type) <span class="sc">%&gt;%</span></span>
@@ -1894,7 +1903,7 @@ Projected CRS: Kertau (RSO) / RSO Malaya (m)
 </div>
 </section>
 <section id="summary-for-crime-rate-per-capita-by-state" class="level3">
-<h3 class="anchored" data-anchor-id="summary-for-crime-rate-per-capita-by-state">Summary for Crime Rate per Capita by State</h3>
+<h3 class="anchored" data-anchor-id="summary-for-crime-rate-per-capita-by-state">3.3.5 Summary for Crime Rate per Capita by State</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="co"># State-specific analysis</span></span>
 <span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(state_name <span class="cf">in</span> <span class="fu">unique</span>(crime_df_transformed<span class="sc">$</span>state)) {</span>
