@@ -481,7 +481,7 @@ type_summary <- create_type_summary(crime_df_transformed)
 type_summary
 ```
 
-## 3.1 Choropleth 
+## 3.1 Choropleth
 
 ### 3.1.1 Choropleth Map for Overall Crime Rate by State
 
