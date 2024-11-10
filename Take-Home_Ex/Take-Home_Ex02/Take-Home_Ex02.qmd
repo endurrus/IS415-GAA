@@ -3,7 +3,7 @@ title: "Take-Home_Ex02"
 date: "October 12, 2024"
 date-modified: "last-modified"
 execute: 
-  eval: true
+  eval: false
   echo: true
   freeze: true
 format:

@@ -385,6 +385,10 @@ crime_df_mys <- st_as_sf(crime_df_mys)
 crime_df_mys
 ```
 
+```{r}
+unique(crime_df$type)
+```
+
 ### 2.3.7 Visualizing the distribution of crime
 
 ```{r}
@@ -417,11 +421,15 @@ choro
 crime_df_transformed <- crime_df_mys %>%
   mutate(type = case_when(
     grepl("robbery", type) ~ "robbery",
-    grepl("theft", type) ~ "theft",
+    grepl("theft_vehicle", type) ~ "vehicle_theft",
     TRUE ~ type
   ))
 
 unique(crime_df_transformed$type)
+```
+
+```{r}
+write_rds(crime_df_transformed, "data/eda.rcds")
 ```
 
 ```{r}
